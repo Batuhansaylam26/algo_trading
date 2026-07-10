@@ -1,0 +1,241 @@
+stock_close_data_preprocessing:
+  delta_lake:
+    bucket: delta-lake-bucket
+
+  feature_engineering:
+    publish_indicator_features: true
+    indicator_features_path: s3://delta-lake-bucket/feature_engineering/stock_price_indicators
+
+  conventional_gap_trading:
+    publish_to_timescale: true
+
+  time_encoding:
+    close_model_freq: B
+    source_harmonics: [1, 2]
+    close_model_harmonics: [1]
+    periods:
+      month: 12.0
+      day: 31.0
+      day_of_year: 366.0
+
+  columns:
+    entity:
+      - symbol
+      - date
+    price:
+      - open
+      - high
+      - low
+      - close
+      - volume
+    analytics_calendar:
+      - month
+      - day
+      - day_of_year
+    target:
+      - target_close
+    tier_1_features:
+      - prev_open
+      - prev_close
+      - prev_high
+      - prev_low
+      - prev_volume
+    fourier_time_encoding:
+      - month_sin_1
+      - month_cos_1
+      - month_sin_2
+      - month_cos_2
+      - day_sin_1
+      - day_cos_1
+      - day_sin_2
+      - day_cos_2
+      - day_of_year_sin_1
+      - day_of_year_cos_1
+      - day_of_year_sin_2
+      - day_of_year_cos_2
+    model_time_features:
+      - calendar_gap_days
+      - month_sin_1
+      - month_cos_1
+      - month_sin_2
+      - month_cos_2
+      - day_sin_1
+      - day_cos_1
+      - day_sin_2
+      - day_cos_2
+      - day_of_year_sin_1
+      - day_of_year_cos_1
+      - day_of_year_sin_2
+      - day_of_year_cos_2
+    indicator:
+      - RSI
+      - SMA_Short
+      - SMA_Long
+      - Vol_SMA
+      - Range_high
+      - Range_low
+      - ADX
+    condition:
+      - gap_up
+      - gap_down
+      - exhaustion_gap_up
+      - exhaustion_gap_down
+      - high_vol
+      - extreme_vol
+      - breakout_up
+      - breakout_down
+      - consolidation
+      - uptrend
+      - downtrend
+      - overbought
+      - oversold
+    strategy_required_conditions:
+      - gap_up
+      - gap_down
+      - breakout_up
+      - breakout_down
+      - high_vol
+      - extreme_vol
+      - consolidation
+      - uptrend
+      - downtrend
+      - overbought
+      - oversold
+    strategy_label:
+      - Gap_Type
+    output_audit:
+      - created_timestamp
+    close_model_time_features:
+      - month_sin_1
+      - month_cos_1
+      - day_sin_1
+      - day_cos_1
+      - day_of_year_sin_1
+      - day_of_year_cos_1
+    model_ready:
+      - prev_open
+      - prev_close
+      - prev_high
+      - prev_low
+      - prev_volume
+      - calendar_gap_days
+      - month_sin_1
+      - month_cos_1
+      - month_sin_2
+      - month_cos_2
+      - day_sin_1
+      - day_cos_1
+      - day_sin_2
+      - day_cos_2
+      - day_of_year_sin_1
+      - day_of_year_cos_1
+      - day_of_year_sin_2
+      - day_of_year_cos_2
+      - RSI
+      - SMA_Short
+      - SMA_Long
+      - Vol_SMA
+      - Range_high
+      - Range_low
+      - ADX
+    indicator_features:
+      - symbol
+      - date
+      - created_timestamp
+      - open
+      - high
+      - low
+      - close
+      - volume
+      - month
+      - day
+      - day_of_year
+      - target_close
+      - prev_open
+      - prev_close
+      - prev_high
+      - prev_low
+      - prev_volume
+      - calendar_gap_days
+      - month_sin_1
+      - month_cos_1
+      - month_sin_2
+      - month_cos_2
+      - day_sin_1
+      - day_cos_1
+      - day_sin_2
+      - day_cos_2
+      - day_of_year_sin_1
+      - day_of_year_cos_1
+      - day_of_year_sin_2
+      - day_of_year_cos_2
+      - RSI
+      - SMA_Short
+      - SMA_Long
+      - Vol_SMA
+      - Range_high
+      - Range_low
+      - ADX
+    conventional_gap_trading:
+      - symbol
+      - date
+      - created_timestamp
+      - open
+      - high
+      - low
+      - close
+      - volume
+      - month
+      - day
+      - day_of_year
+      - target_close
+      - prev_open
+      - prev_close
+      - prev_high
+      - prev_low
+      - prev_volume
+      - calendar_gap_days
+      - month_sin_1
+      - month_cos_1
+      - month_sin_2
+      - month_cos_2
+      - day_sin_1
+      - day_cos_1
+      - day_sin_2
+      - day_cos_2
+      - day_of_year_sin_1
+      - day_of_year_cos_1
+      - day_of_year_sin_2
+      - day_of_year_cos_2
+      - RSI
+      - SMA_Short
+      - SMA_Long
+      - Vol_SMA
+      - Range_high
+      - Range_low
+      - ADX
+      - gap_up
+      - gap_down
+      - exhaustion_gap_up
+      - exhaustion_gap_down
+      - high_vol
+      - extreme_vol
+      - breakout_up
+      - breakout_down
+      - consolidation
+      - uptrend
+      - downtrend
+      - overbought
+      - oversold
+      - Gap_Type
+    close_model_dataset:
+      - unique_id
+      - ds
+      - y
+      - month_sin_1
+      - month_cos_1
+      - day_sin_1
+      - day_cos_1
+      - day_of_year_sin_1
+      - day_of_year_cos_1
+      - created_timestamp

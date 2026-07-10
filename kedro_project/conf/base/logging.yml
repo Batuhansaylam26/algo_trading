@@ -1,0 +1,35 @@
+version: 1
+
+disable_existing_loggers: false
+
+formatters:
+  simple:
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: simple
+    stream: ext://sys.stdout
+
+root:
+  level: INFO
+  handlers:
+    - console
+
+loggers:
+  kedro:
+    level: INFO
+  mlops_kedro:
+    level: DEBUG
+  optuna:
+    level: INFO
+  mlforecast:
+    level: INFO
+  urllib3:
+    level: WARNING
+  git:
+    level: WARNING
+  kedro.framework.hooks.manager:
+    level: WARNING

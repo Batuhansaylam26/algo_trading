@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: stock_price_daily
+    description: "Daily stock-price mart built from the silver query-layer view."
+    columns:
+      - name: symbol
+        description: "Ticker symbol."
+      - name: year
+        description: "Trading year."
+      - name: month
+        description: "Trading month."
+      - name: day
+        description: "Trading day of month."
+      - name: trading_date
+        description: "Trading date."
+      - name: low
+        description: "Daily low."
+      - name: high
+        description: "Daily high."
+      - name: avg_open
+        description: "Average intraday open price."
+      - name: avg_close
+        description: "Average intraday close price."
+      - name: total_volume
+        description: "Total daily volume."
+      - name: bar_count
+        description: "Number of intraday bars in the day."

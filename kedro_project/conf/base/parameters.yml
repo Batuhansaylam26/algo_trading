@@ -1,0 +1,2 @@
+stock_close_training:
+  description: "Composed stock-close workflow. Runtime settings live in parameters_data_preprocessing.yml and parameters_machine_learning.yml."

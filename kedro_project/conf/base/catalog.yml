@@ -1,0 +1,165 @@
+# Source and sink systems live outside the local catalog:
+# Delta Lake on MinIO, TimescaleDB, Feast, and MLflow.
+# Most intermediate datasets stay in memory so Kedro-Viz renders the flow clearly.
+# Model-training inputs and model specs are persisted so failed training runs can
+# resume from individual model nodes without reloading Feast/Redis.
+
+run_config:
+  type: MemoryDataset
+
+stock_close_model_dataset:
+  type: MemoryDataset
+
+close_model_dataset_metadata:
+  type: MemoryDataset
+
+close_model_publish_metadata:
+  type: MemoryDataset
+
+stock_price_indicator_features:
+  type: MemoryDataset
+
+indicator_feature_metadata:
+  type: MemoryDataset
+
+model_feature_publish_metadata:
+  type: MemoryDataset
+
+conventional_gap_trading:
+  type: MemoryDataset
+
+conventional_gap_trading_metadata:
+  type: MemoryDataset
+
+conventional_gap_trading_publish_metadata:
+  type: MemoryDataset
+
+stock_close_training_summary:
+  type: MemoryDataset
+
+machine_learning_summary:
+  type: MemoryDataset
+
+stock_close_tier1_training_dataset:
+  type: mlops_kedro.datasets.PickleDataset
+  filepath: data/05_model_input/stock_close_tier1_training_dataset.pkl
+
+stock_close_tier1_training_dataset_metadata:
+  type: MemoryDataset
+
+stock_close_tier1_train_test_split:
+  type: mlops_kedro.datasets.PickleDataset
+  filepath: data/05_model_input/stock_close_tier1_train_test_split.pkl
+
+stock_close_tier1_train_test_split_metadata:
+  type: MemoryDataset
+
+stock_close_tier1_mlforecast_model_spec:
+  type: mlops_kedro.datasets.PickleDataset
+  filepath: data/05_model_input/stock_close_tier1_mlforecast_model_spec.pkl
+
+stock_close_tier1_mlforecast_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier1_mlforecast_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier1_mlforecast_predictions:
+  type: MemoryDataset
+
+stock_close_tier1_mlforecast_training_metadata:
+  type: MemoryDataset
+
+stock_close_tier1_statsforecast_model_spec:
+  type: mlops_kedro.datasets.PickleDataset
+  filepath: data/05_model_input/stock_close_tier1_statsforecast_model_spec.pkl
+
+stock_close_tier1_statsforecast_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier1_statsforecast_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier1_statsforecast_predictions:
+  type: MemoryDataset
+
+stock_close_tier1_statsforecast_training_metadata:
+  type: MemoryDataset
+
+stock_close_tier1_pecnet_model_spec:
+  type: mlops_kedro.datasets.PickleDataset
+  filepath: data/05_model_input/stock_close_tier1_pecnet_model_spec.pkl
+
+stock_close_tier1_pecnet_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier1_pecnet_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier1_pecnet_predictions:
+  type: MemoryDataset
+
+stock_close_tier1_pecnet_training_metadata:
+  type: MemoryDataset
+
+stock_close_tier2_training_dataset:
+  type: mlops_kedro.datasets.PickleDataset
+  filepath: data/05_model_input/stock_close_tier2_training_dataset.pkl
+
+stock_close_tier2_training_dataset_metadata:
+  type: MemoryDataset
+
+stock_close_tier2_train_test_split:
+  type: mlops_kedro.datasets.PickleDataset
+  filepath: data/05_model_input/stock_close_tier2_train_test_split.pkl
+
+stock_close_tier2_train_test_split_metadata:
+  type: MemoryDataset
+
+stock_close_tier2_mlforecast_model_spec:
+  type: mlops_kedro.datasets.PickleDataset
+  filepath: data/05_model_input/stock_close_tier2_mlforecast_model_spec.pkl
+
+stock_close_tier2_mlforecast_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier2_mlforecast_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier2_mlforecast_predictions:
+  type: MemoryDataset
+
+stock_close_tier2_mlforecast_training_metadata:
+  type: MemoryDataset
+
+stock_close_tier2_statsforecast_model_spec:
+  type: mlops_kedro.datasets.PickleDataset
+  filepath: data/05_model_input/stock_close_tier2_statsforecast_model_spec.pkl
+
+stock_close_tier2_statsforecast_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier2_statsforecast_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier2_statsforecast_predictions:
+  type: MemoryDataset
+
+stock_close_tier2_statsforecast_training_metadata:
+  type: MemoryDataset
+
+stock_close_tier2_pecnet_model_spec:
+  type: mlops_kedro.datasets.PickleDataset
+  filepath: data/05_model_input/stock_close_tier2_pecnet_model_spec.pkl
+
+stock_close_tier2_pecnet_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier2_pecnet_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier2_pecnet_predictions:
+  type: MemoryDataset
+
+stock_close_tier2_pecnet_training_metadata:
+  type: MemoryDataset

@@ -1,0 +1,13 @@
+.runtime/
+.env
+.env.local
+database/duckdb/*.duckdb
+database/duckdb/*.wal
+kedro_project/conf/local/credentials.yml
+
+.venv/
+.env
+kedro_project/conf/local/credentials.yml
+__pycache__/
+*.pyc
+.DS_Store

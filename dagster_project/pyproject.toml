@@ -1,0 +1,55 @@
+[project]
+name = "dataops-dagster"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+  "dagster",
+  "dagster-webserver",
+  "dagster-dbt",
+  "dagster-deltalake",
+  "dagster-deltalake-polars",
+  "dbt-core",
+  "dbt-duckdb",
+  "duckdb",
+  "deltalake",
+  "boto3",
+  "feast[postgres,redis]",
+  "pandas",
+  "pandera[polars]",
+  "polars",
+  "polars-ta",
+  "pyarrow",
+  "protobuf>=6.33.5,<7",
+  "grpcio==1.76.0",
+  "grpcio-health-checking==1.76.0",
+  "python-dotenv",
+  "mlflow",
+  "kedro==1.5.0",
+  "kedro-viz",
+  "mlforecast",
+  "statsforecast",
+  "optuna",
+  "scikit-learn",
+  "lightgbm",
+  "xgboost",
+  "catboost",
+  "utilsforecast",
+  "matplotlib",
+  "seaborn",
+  "tabulate",
+  "torch",
+  "PyWavelets",
+  "psycopg[binary]",
+  "psycopg-pool",
+  "psycopg2-binary",
+  "redis",
+  "wandb",
+  "yahooquery",
+]
+
+[tool.dagster]
+module_name = "dataops_dagster.definitions"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"

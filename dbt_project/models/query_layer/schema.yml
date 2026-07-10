@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: read_silver_stock_prices
+    description: "Query-layer DuckDB view over the validated silver Delta table."
+    columns:
+      - name: symbol
+        description: "Ticker symbol."
+      - name: date
+        description: "Quote timestamp in UTC without timezone."
+      - name: year
+        description: "Year extracted from the quote timestamp."
+      - name: month
+        description: "Month extracted from the quote timestamp."
+      - name: day
+        description: "Day of month extracted from the quote timestamp."
+      - name: open
+        description: "Open price."
+      - name: high
+        description: "High price."
+      - name: low
+        description: "Low price."
+      - name: close
+        description: "Close price."
+      - name: volume
+        description: "Traded volume."

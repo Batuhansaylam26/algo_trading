@@ -1,0 +1,22 @@
+dataops_mlops:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('DBT_DUCKDB_PATH', './dataops_mlops.duckdb') }}"
+      threads: 4
+
+      extensions:
+        - httpfs
+        - delta
+
+      secrets:
+        - type: s3
+          provider: config
+          key_id: "{{ env_var('DELTA_LAKE_S3_ACCESS_KEY', 'admin') }}"
+          secret: "{{ env_var('DELTA_LAKE_S3_SECRET_KEY', 'admin1234') }}"
+          region: us-east-1
+          endpoint: host.docker.internal:9000
+          use_ssl: false
+          url_style: path
+          scope: "s3://{{ env_var('DELTA_LAKE_S3_BUCKET', 'delta-lake-bucket') }}"
