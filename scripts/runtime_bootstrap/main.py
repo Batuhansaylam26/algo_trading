@@ -3,6 +3,7 @@ from __future__ import annotations
 from .copying import (
     refresh_pecnet_runtime,
     refresh_tree_from_source,
+    reset_directory,
     sync_kedro_runtime_overlay,
     try_runtime_step,
 )

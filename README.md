@@ -48,14 +48,15 @@ python scripts/bootstrap_runtime.py
 python -m dagster dev -m dataops_dagster.definitions -h 0.0.0.0 -p 3000
 ```
 
-Docker service data is stored outside the repo by default:
+Docker service data is stored in Docker named volumes by default:
 
 ```text
-/Users/batuhansaylam/Library/Mobile Documents/com~apple~CloudDocs/storage
+timescaledb_data
+mlflow_postgres_data
+minio_data
 ```
 
-Compose uses this as `HOST_STORAGE_ROOT` for TimescaleDB, MLflow Postgres, and
-MinIO. To move it later, set `HOST_STORAGE_ROOT` in your local `.env`.
+This avoids macOS bind-mount deadlocks for MinIO and database storage.
 
 In Dagster, materialize `bronze/stock_prices` and `silver/stock_prices` first.
 Run the Kedro feature-engineering and model-training pipeline after the silver
