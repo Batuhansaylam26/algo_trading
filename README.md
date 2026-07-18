@@ -1,6 +1,5 @@
 # YahooQuery Local Lakehouse Revamp
 
-This version keeps the lakehouse small, while keeping the ML services ready:
 
 ```text
 YahooQuery -> Bronze Delta on MinIO
