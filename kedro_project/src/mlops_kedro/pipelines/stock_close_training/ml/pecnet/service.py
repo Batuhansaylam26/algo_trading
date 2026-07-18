@@ -21,8 +21,6 @@ class PecnetService:
         preprocess_params: dict[str, Any],
         hyperparams: dict[str, Any],
         selection_params: dict[str, Any],
-        wandb_project: str,
-        wandb_mode: str,
         tier_name: str,
     ) -> dict[str, Any]:
         return build_pecnet_spec(
@@ -32,8 +30,6 @@ class PecnetService:
             preprocess_params=preprocess_params,
             hyperparams=hyperparams,
             selection_params=selection_params,
-            wandb_project=wandb_project,
-            wandb_mode=wandb_mode,
             tier_name=tier_name,
         )
 

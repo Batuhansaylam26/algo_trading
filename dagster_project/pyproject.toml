@@ -45,7 +45,6 @@ dependencies = [
   "psycopg-pool",
   "psycopg2-binary",
   "redis",
-  "wandb",
   "yahooquery",
 ]
 

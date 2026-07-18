@@ -100,7 +100,7 @@ KEDRO_RUNTIME_OVERLAY_FILES = [
     "src/mlops_kedro/pipelines/stock_close_training/ml/pecnet/selection/thesis.py",
     "src/mlops_kedro/pipelines/stock_close_training/ml/pecnet/spec.py",
     "src/mlops_kedro/pipelines/stock_close_training/ml/pecnet/tracking/__init__.py",
-    "src/mlops_kedro/pipelines/stock_close_training/ml/pecnet/tracking/wandb.py",
+    "src/mlops_kedro/pipelines/stock_close_training/ml/pecnet/tracking/mlflow.py",
     "src/mlops_kedro/pipelines/stock_close_training/ml/pecnet/training/__init__.py",
     "src/mlops_kedro/pipelines/stock_close_training/ml/pecnet/training/performance.py",
     "src/mlops_kedro/pipelines/stock_close_training/ml/pecnet/training/ticker.py",

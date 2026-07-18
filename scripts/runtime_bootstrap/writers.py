@@ -69,7 +69,6 @@ def runtime_dependencies() -> list[str]:
             "psycopg-pool",
             "psycopg2-binary",
             "redis",
-            "wandb",
             "yahooquery",
         ]
 

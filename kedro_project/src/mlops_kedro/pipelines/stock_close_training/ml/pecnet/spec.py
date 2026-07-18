@@ -16,8 +16,6 @@ def build_pecnet_spec(
     preprocess_params: dict[str, Any] | None = None,
     hyperparams: dict[str, Any] | None = None,
     selection_params: dict[str, Any] | None = None,
-    wandb_project: str = "stock-close-pecnet",
-    wandb_mode: str = "offline",
     tier_name: str = "tier1",
 ) -> dict[str, Any]:
     return {
@@ -28,8 +26,6 @@ def build_pecnet_spec(
         "preprocess_params": preprocess_params or {},
         "hyperparams": hyperparams or {},
         "selection_params": selection_params or {},
-        "wandb_project": wandb_project,
-        "wandb_mode": wandb_mode,
     }
 
 def to_pecnet_frame(df: pl.DataFrame) -> pd.DataFrame:

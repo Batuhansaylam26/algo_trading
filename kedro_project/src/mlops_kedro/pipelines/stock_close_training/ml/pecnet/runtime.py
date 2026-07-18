@@ -37,23 +37,11 @@ def _load_pecnet_runtime():
     from pecnet.utils import FeatureSelector, Utility  # noqa: PLC0415
 
     import torch  # noqa: PLC0415
-    import wandb  # noqa: PLC0415
 
-    return Utility, PecnetBuilder, DataPreprocessor, BasicNN, FeatureSelector, torch, wandb
+    return Utility, PecnetBuilder, DataPreprocessor, BasicNN, FeatureSelector, torch
 
 def _safe_name(value: str) -> str:
     return re.sub(r"[^a-zA-Z0-9_.-]+", "_", value)
-
-def _validate_wandb_auth(wandb_mode: str) -> None:
-    if wandb_mode.lower() not in {"online", "run"}:
-        return
-
-    api_key = os.getenv("WANDB_API_KEY", "")
-    if len(api_key.strip()) < 40:
-        raise RuntimeError(
-            "WANDB_API_KEY is missing or too short for W&B's Python SDK. "
-            "Use a 40+ character key from the W&B UI, or set WANDB_MODE=offline."
-        )
 
 def _configure_torch_threads(torch_module) -> dict[str, int | None]:
     requested_threads = cpu_count_from_env("MODEL_N_JOBS")

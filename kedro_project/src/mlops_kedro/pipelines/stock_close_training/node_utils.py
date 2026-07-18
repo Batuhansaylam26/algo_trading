@@ -53,12 +53,10 @@ def _apply_training_environment(
     mlflow_params: dict[str, Any] | None = None,
     runtime_params: dict[str, Any] | None = None,
     mlforecast_params: dict[str, Any] | None = None,
-    pecnet_params: dict[str, Any] | None = None,
 ) -> None:
     mlflow_params = mlflow_params or {}
     runtime_params = runtime_params or {}
     mlforecast_params = mlforecast_params or {}
-    pecnet_params = pecnet_params or {}
 
     os.environ["MLFLOW_TRACKING_URI"] = str(
         mlflow_params.get("tracking_uri", "http://host.docker.internal:5001")
@@ -88,16 +86,6 @@ def _apply_training_environment(
     os.environ["MODEL_ESTIMATOR_VERBOSE"] = (
         "1" if _as_bool(mlforecast_params.get("estimator_verbose"), False) else "0"
     )
-
-    wandb_base_url = str(pecnet_params.get("wandb_base_url", "") or "").strip()
-    if wandb_base_url:
-        os.environ["WANDB_BASE_URL"] = wandb_base_url
-    else:
-        os.environ.pop("WANDB_BASE_URL", None)
-    if pecnet_params.get("wandb_project"):
-        os.environ["WANDB_PROJECT"] = str(pecnet_params["wandb_project"])
-    if pecnet_params.get("wandb_mode"):
-        os.environ["WANDB_MODE"] = str(pecnet_params["wandb_mode"])
 
 def _feature_columns_for_tier(
     columns_params: dict[str, Any] | None,

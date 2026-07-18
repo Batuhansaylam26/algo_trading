@@ -11,7 +11,6 @@ from ..runtime import (
     _configure_torch_threads,
     _load_pecnet_runtime,
     _safe_name,
-    _validate_wandb_auth,
 )
 from .performance import PecnetPerformanceMeasurement
 from .ticker import _train_one_ticker
@@ -83,11 +82,10 @@ class PecnetTrainingWorkflow:
 
     @staticmethod
     def _load_runtime(model_spec: dict[str, Any]) -> dict[str, Any]:
-        Utility, PecnetBuilder, DataPreprocessor, BasicNN, FeatureSelector, torch, wandb = (
+        Utility, PecnetBuilder, DataPreprocessor, BasicNN, FeatureSelector, torch = (
             _load_pecnet_runtime()
         )
         torch_thread_config = _configure_torch_threads(torch)
-        _validate_wandb_auth(model_spec["wandb_mode"])
         return {
             "utility": Utility,
             "pecnet_builder_cls": PecnetBuilder,
@@ -95,7 +93,6 @@ class PecnetTrainingWorkflow:
             "basic_nn_cls": BasicNN,
             "feature_selector_cls": FeatureSelector,
             "torch": torch,
-            "wandb": wandb,
             "torch_thread_config": torch_thread_config,
         }
 
@@ -212,9 +209,6 @@ class PecnetTrainingWorkflow:
             basic_nn_cls=runtime["basic_nn_cls"],
             feature_selector_cls=runtime["feature_selector_cls"],
             torch_module=runtime["torch"],
-            wandb_module=runtime["wandb"],
-            wandb_project=model_spec["wandb_project"],
-            wandb_mode=model_spec["wandb_mode"],
             tier_name=workflow_state["tier_name"],
             selection_params=workflow_state["selection_params"],
         )

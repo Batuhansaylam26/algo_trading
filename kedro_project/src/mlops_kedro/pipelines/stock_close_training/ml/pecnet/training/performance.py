@@ -149,8 +149,6 @@ def log_parent_run_metadata(
             "tier_name": tier_name,
             "test_horizon": model_spec["test_horizon"],
             "feature_columns": ",".join(feature_columns),
-            "wandb_project": model_spec["wandb_project"],
-            "wandb_mode": model_spec["wandb_mode"],
             "pecnet.selection_strategy": (
                 selection_params.get("strategy_by_tier", {}).get(
                     tier_name,

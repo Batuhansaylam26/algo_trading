@@ -199,7 +199,6 @@ class StockCloseModelNodes:
             mlflow_params=mlflow_params,
             runtime_params=runtime_params,
             mlforecast_params=mlforecast_params,
-            pecnet_params=pecnet_params,
         )
         feature_columns_by_tier = pecnet_params.get("feature_columns_by_tier") or {}
         feature_columns = feature_columns_by_tier.get(
@@ -221,14 +220,11 @@ class StockCloseModelNodes:
                 tier_name,
             ),
             selection_params=pecnet_params.get("selection_params", {}),
-            wandb_project=pecnet_params.get("wandb_project", "stock-close-pecnet"),
-            wandb_mode=pecnet_params.get("wandb_mode", "offline"),
             tier_name=tier_name,
         )
         model_spec["_mlflow"] = mlflow_params or {}
         model_spec["_runtime"] = runtime_params or {}
         model_spec["_mlforecast"] = mlforecast_params
-        model_spec["_pecnet"] = pecnet_params
         _log_step(f"build_{tier_name}_pecnet_model_spec", **model_spec)
         return model_spec
 
@@ -241,7 +237,6 @@ class StockCloseModelNodes:
             mlflow_params=stock_close_pecnet_model_spec.get("_mlflow"),
             runtime_params=stock_close_pecnet_model_spec.get("_runtime"),
             mlforecast_params=stock_close_pecnet_model_spec.get("_mlforecast"),
-            pecnet_params=stock_close_pecnet_model_spec.get("_pecnet"),
         )
         result = self.pecnet.train_from_split(
             stock_close_pecnet_train_test_split,

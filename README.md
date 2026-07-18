@@ -12,7 +12,6 @@ Redis, TimescaleDB, MinIO, MLflow, and MLflow Postgres.
 
 Optional ML services:
 Kedro-Viz runs from the devcontainer on port 4141.
-W&B local runs with the `ml-extra` profile.
 ```
 
 Project layout:
@@ -27,8 +26,8 @@ Project layout:
 
 Architecture diagrams:
 
-- `kedro_project/docs/stock_close_oop_and_data_diagrams.md`
-- `kedro_project/docs/dagster_dbt_diagrams.md`
+- `docs/stock_close_oop_and_data_diagrams.md`
+- `docs/dagster_dbt_diagrams.md`
 
 The dbt YAML tests from the older pipeline are moved into the silver asset:
 
@@ -187,12 +186,6 @@ MLflow:
 
 ```text
 http://localhost:5001
-```
-
-W&B Cloud:
-
-```text
-https://wandb.ai
 ```
 
 DuckDB UI:

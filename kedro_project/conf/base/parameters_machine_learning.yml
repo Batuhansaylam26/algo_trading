@@ -53,8 +53,6 @@ stock_close_machine_learning:
 
   pecnet:
     enabled: true
-    wandb_project: stock-close-pecnet
-    wandb_mode: online
     selection_params:
       strategy_by_tier:
         tier1: all_features

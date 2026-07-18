@@ -132,6 +132,11 @@ classDiagram
         +log_parent_outputs()
     }
 
+    class PecnetMlflowEpochTracker {
+        +live_epoch_logging()
+        +log_epoch_metrics()
+    }
+
     class ForecastPerformanceMeasurement {
         +log_datasets()
         +measure()
@@ -166,6 +171,7 @@ classDiagram
     PecnetService --> PecnetTrainingWorkflow : training workflow
     PecnetTrainingWorkflow --> PecnetDataPreprocessor : data preprocess
     PecnetTrainingWorkflow --> PecnetPerformanceMeasurement : performance measurement
+    PecnetTrainingWorkflow --> PecnetMlflowEpochTracker : step-indexed train_loss metrics
 ```
 
 ## Data ER
@@ -298,6 +304,8 @@ erDiagram
         float rmse
         float mape
         float r2
+        float train_loss
+        int step
     }
 
     ROOT_MODEL_PERFORMANCE {
@@ -346,3 +354,6 @@ erDiagram
   as-of lookback path, so daily rows in the next week see the completed previous
   weekly bar, not the unfinished current week. Tier6 overrides PECNet sampling
   to `[1, 4, 8]`.
+- PECNet epoch losses are logged directly to MLflow as step-indexed metrics and
+  per-ticker epoch metric artifacts. No extra experiment-tracking service,
+  credential, or client runtime is required.
