@@ -303,3 +303,33 @@ stock_close_tier5_pecnet_feature_selection:
 
 stock_close_tier5_pecnet_training_metadata:
   type: MemoryDataset
+
+stock_close_tier6_training_dataset:
+  type: MemoryDataset
+
+stock_close_tier6_training_dataset_metadata:
+  type: MemoryDataset
+
+stock_close_tier6_train_test_split:
+  type: MemoryDataset
+
+stock_close_tier6_train_test_split_metadata:
+  type: MemoryDataset
+
+stock_close_tier6_pecnet_model_spec:
+  type: MemoryDataset
+
+stock_close_tier6_pecnet_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier6_pecnet_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier6_pecnet_predictions:
+  type: MemoryDataset
+
+stock_close_tier6_pecnet_feature_selection:
+  type: MemoryDataset
+
+stock_close_tier6_pecnet_training_metadata:
+  type: MemoryDataset

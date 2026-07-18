@@ -27,6 +27,7 @@ def _apply_model_feature_definitions() -> FeatureStore:
         stock_model_tier_2_feature_service,
         stock_model_tier_3_feature_service,
         stock_model_tier_5_feature_service,
+        stock_model_tier_6_feature_service,
         ticker,
     )
 
@@ -38,6 +39,7 @@ def _apply_model_feature_definitions() -> FeatureStore:
             stock_model_tier_2_feature_service,
             stock_model_tier_3_feature_service,
             stock_model_tier_5_feature_service,
+            stock_model_tier_6_feature_service,
             stock_feature_row,
             stock_model_tier2_dataset_view,
             stock_model_tier2_dataset_service,

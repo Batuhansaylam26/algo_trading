@@ -15,6 +15,7 @@ from ..features.feature_sets import (
     TIER_2_FEATURE_COLUMNS,
     TIER_3_FEATURE_COLUMNS,
     TIER_5_FEATURE_COLUMNS,
+    TIER_6_FEATURE_COLUMNS,
 )
 
 

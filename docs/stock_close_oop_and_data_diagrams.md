@@ -340,3 +340,9 @@ erDiagram
   `parameters_machine_learning.yml`, including daily and weekly lookback
   columns, then applies the PECNet framework's `DataPreprocessor` sampling,
   statistics, and wavelet steps to each selected input series.
+- PECNet tier6 is PECNet-only. It uses `y` as the target close series plus
+  `weekly_close_lag_1`, `calendar_gap_days`, and Fourier time encodings from
+  `stock_model_features`. The weekly close value is attached through the weekly
+  as-of lookback path, so daily rows in the next week see the completed previous
+  weekly bar, not the unfinished current week. Tier6 overrides PECNet sampling
+  to `[1, 4, 8]`.

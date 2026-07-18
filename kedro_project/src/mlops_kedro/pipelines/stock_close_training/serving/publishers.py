@@ -10,6 +10,7 @@ from .constants import (
     TIER_1_FEATURE_COLUMNS,
     TIER_3_FEATURE_COLUMNS,
     TIER_5_FEATURE_COLUMNS,
+    TIER_6_FEATURE_COLUMNS,
     TIMESCALE_CLOSE_MODEL_DATASET_TABLE,
     TIMESCALE_CONVENTIONAL_GAP_TRADING_TABLE,
     TIMESCALE_PECNET_PREPROCESSED_TABLE,
@@ -57,6 +58,7 @@ def publish_model_features(df: pl.DataFrame) -> dict[str, object]:
         ],
         "tier_3_features": TIER_3_FEATURE_COLUMNS,
         "tier_5_features": TIER_5_FEATURE_COLUMNS,
+        "tier_6_features": TIER_6_FEATURE_COLUMNS,
     }
 
 def publish_conventional_gap_trading(df: pl.DataFrame) -> dict[str, object]:

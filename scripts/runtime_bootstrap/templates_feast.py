@@ -79,6 +79,12 @@ TIER_5_FEATURES = [
     *TIER_5_WEEKLY_LOOKBACK_FEATURES,
 ]
 
+TIER_6_FEATURES = [
+    "weekly_close_lag_1",
+    "calendar_gap_days",
+    *TIER_2_TIME_FEATURES[1:],
+]
+
 
 ticker = Entity(name="ticker", join_keys=["symbol"])
 
@@ -143,6 +149,11 @@ stock_model_tier_3_feature_service = FeatureService(
 stock_model_tier_5_feature_service = FeatureService(
     name="stock_model_tier_5_features_v1",
     features=[stock_model_features_view[TIER_5_FEATURES]],
+)
+
+stock_model_tier_6_feature_service = FeatureService(
+    name="stock_model_tier_6_features_v1",
+    features=[stock_model_features_view[TIER_6_FEATURES]],
 )
 
 

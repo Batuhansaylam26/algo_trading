@@ -158,6 +158,15 @@ def resolve_column_config(columns: dict[str, Any]) -> dict[str, list[str]]:
             ],
         )
     )
+    tier_6_feature_columns = list(
+        columns.get(
+            "tier_6_features",
+            [
+                "weekly_close_lag_1",
+                *model_time_feature_columns,
+            ],
+        )
+    )
     model_feature_columns = _ordered_unique(
         list(
             columns.get(
@@ -168,6 +177,7 @@ def resolve_column_config(columns: dict[str, Any]) -> dict[str, list[str]]:
                     *tier_3_feature_columns,
                     *tier_4_feature_columns,
                     *tier_5_feature_columns,
+                    *tier_6_feature_columns,
                 ],
             )
         )
@@ -216,6 +226,7 @@ def resolve_column_config(columns: dict[str, Any]) -> dict[str, list[str]]:
         "tier_3_features": tier_3_feature_columns,
         "tier_4_features": tier_4_feature_columns,
         "tier_5_features": tier_5_feature_columns,
+        "tier_6_features": tier_6_feature_columns,
         "model_features": model_feature_columns,
         "fourier_time_encoding": configured_list(columns, "fourier_time_encoding"),
         "daily_lookback_features": daily_lookback_feature_columns,
