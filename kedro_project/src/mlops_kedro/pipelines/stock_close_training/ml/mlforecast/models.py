@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 import optuna
@@ -12,7 +14,30 @@ from mlforecast.auto import (
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import Ridge
 
-from .runtime import cpu_count_from_env
+from ..runtime import bool_from_env, cpu_count_from_env
+
+
+class MLForecastModelFactory:
+    def build_auto_models(self) -> dict:
+        return {
+            "Ridge": AutoRidge(config=ridge_config),
+            "RandomForest": AutoRandomForest(config=random_forest_config),
+            "LightGBM": AutoLightGBM(config=lightgbm_config),
+            "XGBoost": AutoXGBoost(config=xgboost_config),
+            "CatBoost": AutoCatboost(config=catboost_config),
+        }
+
+    def build_custom_auto_models(self) -> dict:
+        return {
+            "Ridge": AutoModel(model=Ridge(), config=ridge_config),
+            "RandomForest": AutoModel(
+                model=RandomForestRegressor(),
+                config=random_forest_config,
+            ),
+            "LightGBM": AutoLightGBM(config=lightgbm_config),
+            "XGBoost": AutoXGBoost(config=xgboost_config),
+            "CatBoost": AutoCatboost(config=catboost_config),
+        }
 
 
 def _worker_count() -> int:
@@ -23,8 +48,8 @@ def _max_estimators() -> int:
     return max(50, int(os.getenv("MODEL_MAX_ESTIMATORS", "300")))
 
 
-def _verbose() -> bool:
-    return os.getenv("MLFORECAST_VERBOSE", "1").lower() in {"1", "true", "yes"}
+def _estimator_verbose() -> bool:
+    return bool_from_env("MODEL_ESTIMATOR_VERBOSE", default=False)
 
 
 def ridge_config(trial: optuna.Trial) -> dict:
@@ -42,7 +67,7 @@ def random_forest_config(trial: optuna.Trial) -> dict:
         "max_features": trial.suggest_float("max_features", 0.5, 1.0),
         "random_state": 26,
         "n_jobs": _worker_count(),
-        "verbose": 1 if _verbose() else 0,
+        "verbose": 1 if _estimator_verbose() else 0,
     }
 
 
@@ -82,7 +107,7 @@ def xgboost_config(trial: optuna.Trial) -> dict:
         "objective": "reg:squarederror",
         "random_state": 26,
         "n_jobs": _worker_count(),
-        "verbosity": 1 if _verbose() else 0,
+        "verbosity": 1 if _estimator_verbose() else 0,
     }
 
 
@@ -97,7 +122,7 @@ def catboost_config(trial: optuna.Trial) -> dict:
         "loss_function": "RMSE",
         "random_seed": 26,
         "thread_count": _worker_count(),
-        "verbose": _verbose(),
+        "verbose": _estimator_verbose(),
         "allow_writing_files": False,
     }
 
@@ -121,23 +146,8 @@ def fit_config(trial: optuna.Trial) -> dict:
 
 
 def build_auto_models() -> dict:
-    return {
-        "Ridge": AutoRidge(config=ridge_config),
-        "RandomForest": AutoRandomForest(config=random_forest_config),
-        "LightGBM": AutoLightGBM(config=lightgbm_config),
-        "XGBoost": AutoXGBoost(config=xgboost_config),
-        "CatBoost": AutoCatboost(config=catboost_config),
-    }
+    return MLForecastModelFactory().build_auto_models()
 
 
 def build_custom_auto_models() -> dict:
-    return {
-        "Ridge": AutoModel(model=Ridge(), config=ridge_config),
-        "RandomForest": AutoModel(
-            model=RandomForestRegressor(),
-            config=random_forest_config,
-        ),
-        "LightGBM": AutoLightGBM(config=lightgbm_config),
-        "XGBoost": AutoXGBoost(config=xgboost_config),
-        "CatBoost": AutoCatboost(config=catboost_config),
-    }
+    return MLForecastModelFactory().build_custom_auto_models()

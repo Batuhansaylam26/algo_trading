@@ -26,6 +26,11 @@ Project layout:
   feature engineering, Feast publishing, TimescaleDB writes, and MLForecast
   training.
 
+Architecture diagrams:
+
+- `kedro_project/docs/stock_close_oop_and_data_diagrams.md`
+- `kedro_project/docs/dagster_dbt_diagrams.md`
+
 The dbt YAML tests from the older pipeline are moved into the silver asset:
 
 - `unique_combination_of_columns(symbol, date)` becomes a Pandera dataframe check.
@@ -38,12 +43,20 @@ Run order:
 
 ```bash
 docker compose up -d
-cp .env.example .env
 source .venv/bin/activate
 export PYTHONPATH=/workspaces/yahooquery_lakehouse_revamp/dagster_project/src:/workspaces/yahooquery_lakehouse_revamp/kedro_project/src:/opt/dataops_app/src:/opt/kedro_project/src
 python scripts/bootstrap_runtime.py
 python -m dagster dev -m dataops_dagster.definitions -h 0.0.0.0 -p 3000
 ```
+
+Docker service data is stored outside the repo by default:
+
+```text
+/Users/batuhansaylam/Library/Mobile Documents/com~apple~CloudDocs/storage
+```
+
+Compose uses this as `HOST_STORAGE_ROOT` for TimescaleDB, MLflow Postgres, and
+MinIO. To move it later, set `HOST_STORAGE_ROOT` in your local `.env`.
 
 In Dagster, materialize `bronze/stock_prices` and `silver/stock_prices` first.
 Run the Kedro feature-engineering and model-training pipeline after the silver

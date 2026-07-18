@@ -36,7 +36,6 @@ stock_close_data_preprocessing:
       - target_close
     tier_1_features:
       - prev_open
-      - prev_close
       - prev_high
       - prev_low
       - prev_volume
@@ -53,6 +52,44 @@ stock_close_data_preprocessing:
       - day_of_year_cos_1
       - day_of_year_sin_2
       - day_of_year_cos_2
+    daily_lookback_features:
+      - daily_open_lag_1
+      - daily_high_lag_1
+      - daily_low_lag_1
+      - daily_volume_lag_1
+      - daily_open_lag_2
+      - daily_high_lag_2
+      - daily_low_lag_2
+      - daily_volume_lag_2
+      - daily_open_lag_3
+      - daily_high_lag_3
+      - daily_low_lag_3
+      - daily_volume_lag_3
+      - daily_open_lag_4
+      - daily_high_lag_4
+      - daily_low_lag_4
+      - daily_volume_lag_4
+    weekly_lookback_features:
+      - weekly_open_lag_1
+      - weekly_high_lag_1
+      - weekly_low_lag_1
+      - weekly_close_lag_1
+      - weekly_volume_lag_1
+      - weekly_open_lag_2
+      - weekly_high_lag_2
+      - weekly_low_lag_2
+      - weekly_close_lag_2
+      - weekly_volume_lag_2
+      - weekly_open_lag_3
+      - weekly_high_lag_3
+      - weekly_low_lag_3
+      - weekly_close_lag_3
+      - weekly_volume_lag_3
+      - weekly_open_lag_4
+      - weekly_high_lag_4
+      - weekly_low_lag_4
+      - weekly_close_lag_4
+      - weekly_volume_lag_4
     model_time_features:
       - calendar_gap_days
       - month_sin_1
@@ -67,6 +104,96 @@ stock_close_data_preprocessing:
       - day_of_year_cos_1
       - day_of_year_sin_2
       - day_of_year_cos_2
+    tier_3_features:
+      - prev_open
+      - prev_high
+      - prev_low
+      - prev_volume
+      - calendar_gap_days
+      - month_sin_1
+      - month_cos_1
+      - month_sin_2
+      - month_cos_2
+      - day_sin_1
+      - day_cos_1
+      - day_sin_2
+      - day_cos_2
+      - day_of_year_sin_1
+      - day_of_year_cos_1
+      - day_of_year_sin_2
+      - day_of_year_cos_2
+    tier_4_features:
+      - prev_open
+      - prev_high
+      - prev_low
+      - prev_volume
+      - calendar_gap_days
+      - month_sin_1
+      - month_cos_1
+      - month_sin_2
+      - month_cos_2
+      - day_sin_1
+      - day_cos_1
+      - day_sin_2
+      - day_cos_2
+      - day_of_year_sin_1
+      - day_of_year_cos_1
+      - day_of_year_sin_2
+      - day_of_year_cos_2
+    tier_5_features:
+      - prev_open
+      - prev_high
+      - prev_low
+      - prev_volume
+      - calendar_gap_days
+      - month_sin_1
+      - month_cos_1
+      - month_sin_2
+      - month_cos_2
+      - day_sin_1
+      - day_cos_1
+      - day_sin_2
+      - day_cos_2
+      - day_of_year_sin_1
+      - day_of_year_cos_1
+      - day_of_year_sin_2
+      - day_of_year_cos_2
+      - daily_open_lag_1
+      - daily_high_lag_1
+      - daily_low_lag_1
+      - daily_volume_lag_1
+      - daily_open_lag_2
+      - daily_high_lag_2
+      - daily_low_lag_2
+      - daily_volume_lag_2
+      - daily_open_lag_3
+      - daily_high_lag_3
+      - daily_low_lag_3
+      - daily_volume_lag_3
+      - daily_open_lag_4
+      - daily_high_lag_4
+      - daily_low_lag_4
+      - daily_volume_lag_4
+      - weekly_open_lag_1
+      - weekly_high_lag_1
+      - weekly_low_lag_1
+      - weekly_close_lag_1
+      - weekly_volume_lag_1
+      - weekly_open_lag_2
+      - weekly_high_lag_2
+      - weekly_low_lag_2
+      - weekly_close_lag_2
+      - weekly_volume_lag_2
+      - weekly_open_lag_3
+      - weekly_high_lag_3
+      - weekly_low_lag_3
+      - weekly_close_lag_3
+      - weekly_volume_lag_3
+      - weekly_open_lag_4
+      - weekly_high_lag_4
+      - weekly_low_lag_4
+      - weekly_close_lag_4
+      - weekly_volume_lag_4
     indicator:
       - RSI
       - SMA_Short
@@ -114,7 +241,6 @@ stock_close_data_preprocessing:
       - day_of_year_cos_1
     model_ready:
       - prev_open
-      - prev_close
       - prev_high
       - prev_low
       - prev_volume
@@ -152,10 +278,45 @@ stock_close_data_preprocessing:
       - day_of_year
       - target_close
       - prev_open
-      - prev_close
       - prev_high
       - prev_low
       - prev_volume
+      - daily_open_lag_1
+      - daily_high_lag_1
+      - daily_low_lag_1
+      - daily_volume_lag_1
+      - daily_open_lag_2
+      - daily_high_lag_2
+      - daily_low_lag_2
+      - daily_volume_lag_2
+      - daily_open_lag_3
+      - daily_high_lag_3
+      - daily_low_lag_3
+      - daily_volume_lag_3
+      - daily_open_lag_4
+      - daily_high_lag_4
+      - daily_low_lag_4
+      - daily_volume_lag_4
+      - weekly_open_lag_1
+      - weekly_high_lag_1
+      - weekly_low_lag_1
+      - weekly_close_lag_1
+      - weekly_volume_lag_1
+      - weekly_open_lag_2
+      - weekly_high_lag_2
+      - weekly_low_lag_2
+      - weekly_close_lag_2
+      - weekly_volume_lag_2
+      - weekly_open_lag_3
+      - weekly_high_lag_3
+      - weekly_low_lag_3
+      - weekly_close_lag_3
+      - weekly_volume_lag_3
+      - weekly_open_lag_4
+      - weekly_high_lag_4
+      - weekly_low_lag_4
+      - weekly_close_lag_4
+      - weekly_volume_lag_4
       - calendar_gap_days
       - month_sin_1
       - month_cos_1
@@ -190,7 +351,6 @@ stock_close_data_preprocessing:
       - day_of_year
       - target_close
       - prev_open
-      - prev_close
       - prev_high
       - prev_low
       - prev_volume

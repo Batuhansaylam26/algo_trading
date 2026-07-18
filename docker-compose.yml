@@ -10,7 +10,9 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - timescaledb_data:/var/lib/postgresql/data
+      - type: bind
+        source: "${HOST_STORAGE_ROOT:-/Users/batuhansaylam/Library/Mobile Documents/com~apple~CloudDocs/storage}/timescaledb"
+        target: /var/lib/postgresql/data
 
   redis:
     image: redis:7-alpine
@@ -31,7 +33,9 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - minio_data:/data
+      - type: bind
+        source: "${HOST_STORAGE_ROOT:-/Users/batuhansaylam/Library/Mobile Documents/com~apple~CloudDocs/storage}/minio"
+        target: /data
 
   create-bucket:
     image: minio/mc
@@ -63,7 +67,9 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - mlflow_postgres_data:/var/lib/postgresql/data
+      - type: bind
+        source: "${HOST_STORAGE_ROOT:-/Users/batuhansaylam/Library/Mobile Documents/com~apple~CloudDocs/storage}/mlflow-postgres"
+        target: /var/lib/postgresql/data
 
   mlflow:
     image: python:3.12-slim
@@ -132,8 +138,3 @@ services:
       timeout: 5s
       retries: 10
       start_period: 40s
-
-volumes:
-  timescaledb_data:
-  mlflow_postgres_data:
-  minio_data:

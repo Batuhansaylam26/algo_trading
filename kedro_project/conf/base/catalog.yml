@@ -1,10 +1,16 @@
-# Source and sink systems live outside the local catalog:
-# Delta Lake on MinIO, TimescaleDB, Feast, and MLflow.
-# Most intermediate datasets stay in memory so Kedro-Viz renders the flow clearly.
-# Model-training inputs and model specs are persisted so failed training runs can
-# resume from individual model nodes without reloading Feast/Redis.
+stock_close_feature_engineering:
+  type: MemoryDataset
 
-run_config:
+silver_stock_prices:
+  type: MemoryDataset
+
+silver_stock_prices_metadata:
+  type: MemoryDataset
+
+silver_stock_prices_weekly:
+  type: MemoryDataset
+
+silver_stock_prices_weekly_metadata:
   type: MemoryDataset
 
 stock_close_model_dataset:
@@ -40,23 +46,32 @@ stock_close_training_summary:
 machine_learning_summary:
   type: MemoryDataset
 
+root_model_performance_predictions:
+  type: MemoryDataset
+
+root_model_performance_regression_metrics:
+  type: MemoryDataset
+
+root_model_performance_long_direction_metrics:
+  type: MemoryDataset
+
+root_model_performance_metadata:
+  type: MemoryDataset
+
 stock_close_tier1_training_dataset:
-  type: mlops_kedro.datasets.PickleDataset
-  filepath: data/05_model_input/stock_close_tier1_training_dataset.pkl
+  type: MemoryDataset
 
 stock_close_tier1_training_dataset_metadata:
   type: MemoryDataset
 
 stock_close_tier1_train_test_split:
-  type: mlops_kedro.datasets.PickleDataset
-  filepath: data/05_model_input/stock_close_tier1_train_test_split.pkl
+  type: MemoryDataset
 
 stock_close_tier1_train_test_split_metadata:
   type: MemoryDataset
 
 stock_close_tier1_mlforecast_model_spec:
-  type: mlops_kedro.datasets.PickleDataset
-  filepath: data/05_model_input/stock_close_tier1_mlforecast_model_spec.pkl
+  type: MemoryDataset
 
 stock_close_tier1_mlforecast_regression_metrics:
   type: MemoryDataset
@@ -71,8 +86,7 @@ stock_close_tier1_mlforecast_training_metadata:
   type: MemoryDataset
 
 stock_close_tier1_statsforecast_model_spec:
-  type: mlops_kedro.datasets.PickleDataset
-  filepath: data/05_model_input/stock_close_tier1_statsforecast_model_spec.pkl
+  type: MemoryDataset
 
 stock_close_tier1_statsforecast_regression_metrics:
   type: MemoryDataset
@@ -87,8 +101,7 @@ stock_close_tier1_statsforecast_training_metadata:
   type: MemoryDataset
 
 stock_close_tier1_pecnet_model_spec:
-  type: mlops_kedro.datasets.PickleDataset
-  filepath: data/05_model_input/stock_close_tier1_pecnet_model_spec.pkl
+  type: MemoryDataset
 
 stock_close_tier1_pecnet_regression_metrics:
   type: MemoryDataset
@@ -99,26 +112,26 @@ stock_close_tier1_pecnet_long_direction_metrics:
 stock_close_tier1_pecnet_predictions:
   type: MemoryDataset
 
+stock_close_tier1_pecnet_feature_selection:
+  type: MemoryDataset
+
 stock_close_tier1_pecnet_training_metadata:
   type: MemoryDataset
 
 stock_close_tier2_training_dataset:
-  type: mlops_kedro.datasets.PickleDataset
-  filepath: data/05_model_input/stock_close_tier2_training_dataset.pkl
+  type: MemoryDataset
 
 stock_close_tier2_training_dataset_metadata:
   type: MemoryDataset
 
 stock_close_tier2_train_test_split:
-  type: mlops_kedro.datasets.PickleDataset
-  filepath: data/05_model_input/stock_close_tier2_train_test_split.pkl
+  type: MemoryDataset
 
 stock_close_tier2_train_test_split_metadata:
   type: MemoryDataset
 
 stock_close_tier2_mlforecast_model_spec:
-  type: mlops_kedro.datasets.PickleDataset
-  filepath: data/05_model_input/stock_close_tier2_mlforecast_model_spec.pkl
+  type: MemoryDataset
 
 stock_close_tier2_mlforecast_regression_metrics:
   type: MemoryDataset
@@ -133,8 +146,7 @@ stock_close_tier2_mlforecast_training_metadata:
   type: MemoryDataset
 
 stock_close_tier2_statsforecast_model_spec:
-  type: mlops_kedro.datasets.PickleDataset
-  filepath: data/05_model_input/stock_close_tier2_statsforecast_model_spec.pkl
+  type: MemoryDataset
 
 stock_close_tier2_statsforecast_regression_metrics:
   type: MemoryDataset
@@ -149,8 +161,7 @@ stock_close_tier2_statsforecast_training_metadata:
   type: MemoryDataset
 
 stock_close_tier2_pecnet_model_spec:
-  type: mlops_kedro.datasets.PickleDataset
-  filepath: data/05_model_input/stock_close_tier2_pecnet_model_spec.pkl
+  type: MemoryDataset
 
 stock_close_tier2_pecnet_regression_metrics:
   type: MemoryDataset
@@ -161,5 +172,128 @@ stock_close_tier2_pecnet_long_direction_metrics:
 stock_close_tier2_pecnet_predictions:
   type: MemoryDataset
 
+stock_close_tier2_pecnet_feature_selection:
+  type: MemoryDataset
+
 stock_close_tier2_pecnet_training_metadata:
+  type: MemoryDataset
+
+stock_close_tier3_training_dataset:
+  type: MemoryDataset
+
+stock_close_tier3_training_dataset_metadata:
+  type: MemoryDataset
+
+stock_close_tier3_train_test_split:
+  type: MemoryDataset
+
+stock_close_tier3_train_test_split_metadata:
+  type: MemoryDataset
+
+stock_close_tier3_mlforecast_model_spec:
+  type: MemoryDataset
+
+stock_close_tier3_mlforecast_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier3_mlforecast_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier3_mlforecast_predictions:
+  type: MemoryDataset
+
+stock_close_tier3_mlforecast_training_metadata:
+  type: MemoryDataset
+
+stock_close_tier3_statsforecast_model_spec:
+  type: MemoryDataset
+
+stock_close_tier3_statsforecast_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier3_statsforecast_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier3_statsforecast_predictions:
+  type: MemoryDataset
+
+stock_close_tier3_statsforecast_training_metadata:
+  type: MemoryDataset
+
+stock_close_tier3_pecnet_model_spec:
+  type: MemoryDataset
+
+stock_close_tier3_pecnet_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier3_pecnet_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier3_pecnet_predictions:
+  type: MemoryDataset
+
+stock_close_tier3_pecnet_feature_selection:
+  type: MemoryDataset
+
+stock_close_tier3_pecnet_training_metadata:
+  type: MemoryDataset
+
+stock_close_tier4_training_dataset:
+  type: MemoryDataset
+
+stock_close_tier4_training_dataset_metadata:
+  type: MemoryDataset
+
+stock_close_tier4_train_test_split:
+  type: MemoryDataset
+
+stock_close_tier4_train_test_split_metadata:
+  type: MemoryDataset
+
+stock_close_tier4_pecnet_model_spec:
+  type: MemoryDataset
+
+stock_close_tier4_pecnet_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier4_pecnet_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier4_pecnet_predictions:
+  type: MemoryDataset
+
+stock_close_tier4_pecnet_feature_selection:
+  type: MemoryDataset
+
+stock_close_tier4_pecnet_training_metadata:
+  type: MemoryDataset
+
+stock_close_tier5_training_dataset:
+  type: MemoryDataset
+
+stock_close_tier5_training_dataset_metadata:
+  type: MemoryDataset
+
+stock_close_tier5_train_test_split:
+  type: MemoryDataset
+
+stock_close_tier5_train_test_split_metadata:
+  type: MemoryDataset
+
+stock_close_tier5_pecnet_model_spec:
+  type: MemoryDataset
+
+stock_close_tier5_pecnet_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier5_pecnet_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier5_pecnet_predictions:
+  type: MemoryDataset
+
+stock_close_tier5_pecnet_feature_selection:
+  type: MemoryDataset
+
+stock_close_tier5_pecnet_training_metadata:
   type: MemoryDataset

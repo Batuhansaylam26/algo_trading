@@ -3,10 +3,11 @@ from __future__ import annotations
 import os
 
 import mlflow
+import numpy as np
 import pandas as pd
 from mlflow.entities import ViewType
 from mlflow.tracking import MlflowClient
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
 os.environ.setdefault("MLFLOW_HTTP_REQUEST_TIMEOUT", "60")
@@ -150,10 +151,19 @@ def log_mlflow_datasets(
             mlflow.data.from_pandas(dataset_df, name=dataset_name),
             context=context,
         )
-        mlflow.log_table(
-            dataset_df,
-            f"{artifact_prefix}/datasets/{split_name}.json",
-        )
+        if _log_dataset_tables_enabled():
+            mlflow.log_table(
+                dataset_df,
+                f"{artifact_prefix}/datasets/{split_name}.json",
+            )
+
+
+def _log_dataset_tables_enabled() -> bool:
+    return os.getenv("MLFLOW_LOG_DATASET_TABLES", "0").lower() in {
+        "1",
+        "true",
+        "yes",
+    }
 
 
 def _prediction_frame(
@@ -197,7 +207,14 @@ def _regression_metrics(joined_df: pd.DataFrame) -> pd.DataFrame:
     models = [
         column
         for column in joined_df.columns
-        if column not in {"unique_id", "ds", "y"}
+        if column
+        not in {
+            "unique_id",
+            "ds",
+            "y",
+            "previous_actual_close",
+            "actual_long",
+        }
         and "-lo-" not in column
         and "-hi-" not in column
     ]
@@ -208,11 +225,31 @@ def _regression_metrics(joined_df: pd.DataFrame) -> pd.DataFrame:
             continue
 
         mse = mean_squared_error(valid_rows["y"], valid_rows[model])
+        non_zero_actuals = valid_rows[valid_rows["y"] != 0]
+        mape = (
+            float(
+                np.mean(
+                    np.abs(
+                        (non_zero_actuals["y"] - non_zero_actuals[model])
+                        / non_zero_actuals["y"]
+                    )
+                )
+                * 100.0
+            )
+            if not non_zero_actuals.empty
+            else None
+        )
         rows.append(
             {
                 "model": model,
                 "mae": mean_absolute_error(valid_rows["y"], valid_rows[model]),
                 "rmse": mse**0.5,
+                "mape": mape,
+                "r2": (
+                    r2_score(valid_rows["y"], valid_rows[model])
+                    if len(valid_rows) >= 2
+                    else None
+                ),
                 "rows": len(valid_rows),
             }
         )

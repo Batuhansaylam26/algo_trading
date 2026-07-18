@@ -4,7 +4,13 @@ import pandas as pd
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 
 
-BASE_COLUMNS = {"unique_id", "ds", "y"}
+BASE_COLUMNS = {
+    "unique_id",
+    "ds",
+    "y",
+    "previous_actual_close",
+    "actual_long",
+}
 
 
 def model_prediction_columns(df: pd.DataFrame) -> list[str]:

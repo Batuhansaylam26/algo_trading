@@ -4,6 +4,11 @@ stock_close_machine_learning:
     tiers:
       - tier1
       - tier2
+      - tier3
+      - tier5
+    pecnet_only_tiers:
+      - tier4
+      - tier5
 
   mlflow:
     tracking_uri: http://host.docker.internal:5001
@@ -20,6 +25,7 @@ stock_close_machine_learning:
     n_windows: 5
     n_trials: 10
     verbose: true
+    estimator_verbose: false
     models:
       - Ridge
       - RandomForest
@@ -48,16 +54,27 @@ stock_close_machine_learning:
     enabled: true
     wandb_project: stock-close-pecnet
     wandb_mode: online
+    selection_params:
+      strategy_by_tier:
+        tier1: all_features
+        tier2: all_features
+        tier3: residual_correlation
+        tier4: thesis_wavelet_error_compensated_fusion
+        tier5: residual_correlation
+      correlation_threshold: 0.08
+      force_include_best_if_first: true
+      max_selected_features:
+      max_selected_features_by_tier:
+        tier4: 5
+        tier5: 5
     feature_columns_by_tier:
       tier1:
         - prev_open
-        - prev_close
         - prev_high
         - prev_low
         - prev_volume
       tier2:
         - prev_open
-        - prev_close
         - prev_high
         - prev_low
         - prev_volume
@@ -74,6 +91,96 @@ stock_close_machine_learning:
         - day_of_year_cos_1
         - day_of_year_sin_2
         - day_of_year_cos_2
+      tier3:
+        - prev_open
+        - prev_high
+        - prev_low
+        - prev_volume
+        - calendar_gap_days
+        - month_sin_1
+        - month_cos_1
+        - month_sin_2
+        - month_cos_2
+        - day_sin_1
+        - day_cos_1
+        - day_sin_2
+        - day_cos_2
+        - day_of_year_sin_1
+        - day_of_year_cos_1
+        - day_of_year_sin_2
+        - day_of_year_cos_2
+      tier4:
+        - prev_open
+        - prev_high
+        - prev_low
+        - prev_volume
+        - calendar_gap_days
+        - month_sin_1
+        - month_cos_1
+        - month_sin_2
+        - month_cos_2
+        - day_sin_1
+        - day_cos_1
+        - day_sin_2
+        - day_cos_2
+        - day_of_year_sin_1
+        - day_of_year_cos_1
+        - day_of_year_sin_2
+        - day_of_year_cos_2
+      tier5:
+        - prev_open
+        - prev_high
+        - prev_low
+        - prev_volume
+        - calendar_gap_days
+        - month_sin_1
+        - month_cos_1
+        - month_sin_2
+        - month_cos_2
+        - day_sin_1
+        - day_cos_1
+        - day_sin_2
+        - day_cos_2
+        - day_of_year_sin_1
+        - day_of_year_cos_1
+        - day_of_year_sin_2
+        - day_of_year_cos_2
+        - daily_open_lag_1
+        - daily_high_lag_1
+        - daily_low_lag_1
+        - daily_volume_lag_1
+        - daily_open_lag_2
+        - daily_high_lag_2
+        - daily_low_lag_2
+        - daily_volume_lag_2
+        - daily_open_lag_3
+        - daily_high_lag_3
+        - daily_low_lag_3
+        - daily_volume_lag_3
+        - daily_open_lag_4
+        - daily_high_lag_4
+        - daily_low_lag_4
+        - daily_volume_lag_4
+        - weekly_open_lag_1
+        - weekly_high_lag_1
+        - weekly_low_lag_1
+        - weekly_close_lag_1
+        - weekly_volume_lag_1
+        - weekly_open_lag_2
+        - weekly_high_lag_2
+        - weekly_low_lag_2
+        - weekly_close_lag_2
+        - weekly_volume_lag_2
+        - weekly_open_lag_3
+        - weekly_high_lag_3
+        - weekly_low_lag_3
+        - weekly_close_lag_3
+        - weekly_volume_lag_3
+        - weekly_open_lag_4
+        - weekly_high_lag_4
+        - weekly_low_lag_4
+        - weekly_close_lag_4
+        - weekly_volume_lag_4
     preprocess_params:
       sampling_periods: [1, 2, 4]
       sampling_statistics: ["mean", "std"]
@@ -84,12 +191,46 @@ stock_close_machine_learning:
       normalization_type:
       target_normalization_type: window_mean
       conjoincy: false
+    preprocess_params_by_tier:
+      tier4:
+        sampling_periods: [1, 5]
+        sampling_statistics: ["mean"]
+        sequence_size: 4
+        error_sequence_size: 8
+        wavelet_type: haar
+        scale_factor: 1.3
+        normalization_type:
+        target_normalization_type: window_mean
+        conjoincy: false
+      tier5:
+        sampling_periods: [1, 2, 4]
+        sampling_statistics: ["mean", "std"]
+        sequence_size: 4
+        error_sequence_size: 8
+        wavelet_type: haar
+        scale_factor: 1.3
+        normalization_type:
+        target_normalization_type: window_mean
+        conjoincy: false
     hyperparams:
       seed: 42
       learning_rate: 0.001
       epoch_size: 150
       batch_size: 96
       hidden_units_sizes: [32, 64, 32, 16]
+    hyperparams_by_tier:
+      tier4:
+        seed: 42
+        learning_rate: 0.001
+        epoch_size: 500
+        batch_size: 64
+        hidden_units_sizes: [64, 32]
+      tier5:
+        seed: 42
+        learning_rate: 0.001
+        epoch_size: 500
+        batch_size: 96
+        hidden_units_sizes: [32, 64, 32, 16]
 
   runtime:
     mlforecast_num_threads: -1

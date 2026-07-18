@@ -9,7 +9,6 @@ from feast.types import Float64, Int64
 
 TIER_1_FEATURES = [
     "prev_open",
-    "prev_close",
     "prev_high",
     "prev_low",
     "prev_volume",
@@ -36,6 +35,26 @@ TIER_2_FEATURES = [
     *TIER_2_TIME_FEATURES,
 ]
 
+TIER_3_FEATURES = TIER_2_FEATURES
+
+TIER_5_DAILY_LOOKBACK_FEATURES = [
+    f"daily_{column}_lag_{lag}"
+    for lag in range(1, 5)
+    for column in ["open", "high", "low", "volume"]
+]
+
+TIER_5_WEEKLY_LOOKBACK_FEATURES = [
+    f"weekly_{column}_lag_{lag}"
+    for lag in range(1, 5)
+    for column in ["open", "high", "low", "close", "volume"]
+]
+
+TIER_5_FEATURES = [
+    *TIER_3_FEATURES,
+    *TIER_5_DAILY_LOOKBACK_FEATURES,
+    *TIER_5_WEEKLY_LOOKBACK_FEATURES,
+]
+
 
 ticker = Entity(name="ticker", join_keys=["symbol"])
 
@@ -52,7 +71,6 @@ stock_model_features_view = FeatureView(
     ttl=timedelta(days=3650),
     schema=[
         Field(name="prev_open", dtype=Float64),
-        Field(name="prev_close", dtype=Float64),
         Field(name="prev_high", dtype=Float64),
         Field(name="prev_low", dtype=Float64),
         Field(name="prev_volume", dtype=Float64),
@@ -69,6 +87,14 @@ stock_model_features_view = FeatureView(
         Field(name="day_of_year_cos_1", dtype=Float64),
         Field(name="day_of_year_sin_2", dtype=Float64),
         Field(name="day_of_year_cos_2", dtype=Float64),
+        *[
+            Field(name=feature_name, dtype=Float64)
+            for feature_name in TIER_5_DAILY_LOOKBACK_FEATURES
+        ],
+        *[
+            Field(name=feature_name, dtype=Float64)
+            for feature_name in TIER_5_WEEKLY_LOOKBACK_FEATURES
+        ],
     ],
     online=True,
     source=stock_model_source,
@@ -83,6 +109,16 @@ stock_model_tier_1_feature_service = FeatureService(
 stock_model_tier_2_feature_service = FeatureService(
     name="stock_model_tier_2_features_v1",
     features=[stock_model_features_view[TIER_2_FEATURES]],
+)
+
+stock_model_tier_3_feature_service = FeatureService(
+    name="stock_model_tier_3_features_v1",
+    features=[stock_model_features_view[TIER_3_FEATURES]],
+)
+
+stock_model_tier_5_feature_service = FeatureService(
+    name="stock_model_tier_5_features_v1",
+    features=[stock_model_features_view[TIER_5_FEATURES]],
 )
 
 
@@ -113,7 +149,6 @@ stock_model_tier2_dataset_view = FeatureView(
     ttl=timedelta(days=3650),
     schema=[
         Field(name="prev_open", dtype=Float64),
-        Field(name="prev_close", dtype=Float64),
         Field(name="prev_high", dtype=Float64),
         Field(name="prev_low", dtype=Float64),
         Field(name="prev_volume", dtype=Float64),
@@ -130,6 +165,14 @@ stock_model_tier2_dataset_view = FeatureView(
         Field(name="day_of_year_cos_1", dtype=Float64),
         Field(name="day_of_year_sin_2", dtype=Float64),
         Field(name="day_of_year_cos_2", dtype=Float64),
+        *[
+            Field(name=feature_name, dtype=Float64)
+            for feature_name in TIER_5_DAILY_LOOKBACK_FEATURES
+        ],
+        *[
+            Field(name=feature_name, dtype=Float64)
+            for feature_name in TIER_5_WEEKLY_LOOKBACK_FEATURES
+        ],
     ],
     online=True,
     source=stock_model_tier2_dataset_source,
@@ -193,6 +236,52 @@ stock_close_model_dataset_service = FeatureService(
                 "day_cos_1",
                 "day_of_year_sin_1",
                 "day_of_year_cos_1",
+            ]
+        ]
+    ],
+)
+
+
+pecnet_preprocessed_row = Entity(
+    name="pecnet_preprocessed_row",
+    join_keys=["row_key"],
+)
+
+pecnet_preprocessed_training_source = PostgreSQLSource(
+    name="pecnet_preprocessed_training_source",
+    query="SELECT * FROM feature_store.pecnet_preprocessed_training_data",
+    timestamp_field="event_timestamp",
+    created_timestamp_column="created_timestamp",
+)
+
+pecnet_preprocessed_training_view = FeatureView(
+    name="pecnet_preprocessed_training_data",
+    entities=[pecnet_preprocessed_row],
+    ttl=timedelta(days=3650),
+    schema=[
+        Field(name="value", dtype=Float64),
+        Field(name="target_y", dtype=Float64),
+        Field(name="sample_index", dtype=Int64),
+        Field(name="step_index", dtype=Int64),
+        Field(name="variable_index", dtype=Int64),
+        Field(name="split_index", dtype=Int64),
+    ],
+    online=True,
+    source=pecnet_preprocessed_training_source,
+    tags={"layer": "model_training", "model": "pecnet", "team": "dataops_mlops"},
+)
+
+pecnet_preprocessed_training_service = FeatureService(
+    name="pecnet_preprocessed_training_data_v1",
+    features=[
+        pecnet_preprocessed_training_view[
+            [
+                "value",
+                "target_y",
+                "sample_index",
+                "step_index",
+                "variable_index",
+                "split_index",
             ]
         ]
     ],
