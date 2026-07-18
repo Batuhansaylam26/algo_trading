@@ -5,7 +5,7 @@ sources:
     description: "Validated and calendar-enriched Delta Lake silver layer written by Polars and Pandera."
     tables:
       - name: stock_prices
-        description: "Cleaned, deduplicated, validated, and calendar-enriched intraday stock prices."
+        description: "Cleaned, deduplicated, validated, and calendar-enriched daily stock prices."
         meta:
           external_location: "s3://delta-lake-bucket/silver/stock_prices"
           format: "delta"
@@ -13,3 +13,12 @@ sources:
             asset_key:
               - silver
               - stock_prices
+      - name: stock_prices_weekly
+        description: "Cleaned, deduplicated, and validated weekly stock prices."
+        meta:
+          external_location: "s3://delta-lake-bucket/silver/stock_prices_weekly"
+          format: "delta"
+          dagster:
+            asset_key:
+              - silver
+              - stock_prices_weekly

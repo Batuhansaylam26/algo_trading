@@ -24,3 +24,28 @@ models:
         description: "Close price."
       - name: volume
         description: "Traded volume."
+  - name: read_silver_stock_prices_weekly
+    description: "Query-layer DuckDB view over the validated weekly silver Delta table."
+    columns:
+      - name: symbol
+        description: "Ticker symbol."
+      - name: date
+        description: "Weekly quote timestamp in UTC without timezone."
+      - name: year
+        description: "Year extracted from the weekly timestamp."
+      - name: month
+        description: "Month extracted from the weekly timestamp."
+      - name: day
+        description: "Day of month extracted from the weekly timestamp."
+      - name: week
+        description: "ISO-like calendar week extracted by DuckDB."
+      - name: open
+        description: "Weekly open price."
+      - name: high
+        description: "Weekly high price."
+      - name: low
+        description: "Weekly low price."
+      - name: close
+        description: "Weekly close price."
+      - name: volume
+        description: "Weekly traded volume."

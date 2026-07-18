@@ -109,7 +109,7 @@ class StockCloseDataNodes:
         feature_engineering_params: dict[str, Any] | None,
         silver_stock_prices: pl.DataFrame,
         silver_stock_prices_weekly: pl.DataFrame,
-    ) -> tuple[pl.DataFrame, dict[str, Any]]:
+    ) -> tuple[pl.DataFrame, dict[str, Any], pl.DataFrame, dict[str, Any]]:
         feature_engineering_params = feature_engineering_params or {}
         indicator_features_path = _indicator_features_path(
             {"bucket": feature_engineering.bucket},
@@ -124,10 +124,18 @@ class StockCloseDataNodes:
                 "indicator_feature_rows": 0,
                 "indicator_features_path": indicator_features_path,
             }
+            model_feature_metadata = {
+                "publish_model_features": False,
+                "model_feature_rows": 0,
+                "reason": "publish_indicator_features is false",
+            }
             _log_step("prepare_indicator_features", **metadata)
-            return pl.DataFrame(), metadata
+            return pl.DataFrame(), metadata, pl.DataFrame(), model_feature_metadata
 
-        indicator_features = feature_engineering.build_stock_price_indicator_features(
+        (
+            indicator_features,
+            stock_model_features,
+        ) = feature_engineering.build_stock_feature_sets(
             silver_stock_prices,
             silver_stock_prices_weekly,
         )
@@ -139,8 +147,12 @@ class StockCloseDataNodes:
             "indicator_feature_rows": len(indicator_features),
             "indicator_features_path": indicator_features_path,
         }
+        model_feature_metadata = {
+            "publish_model_features": True,
+            "model_feature_rows": len(stock_model_features),
+        }
         _log_step("prepare_indicator_features", **metadata)
-        return indicator_features, metadata
+        return indicator_features, metadata, stock_model_features, model_feature_metadata
 
     def load_indicator_features(
         self,
@@ -163,21 +175,21 @@ class StockCloseDataNodes:
 
     def publish_indicator_model_features(
         self,
-        stock_price_indicator_features: pl.DataFrame,
-        indicator_feature_metadata: dict[str, Any],
+        stock_model_features: pl.DataFrame,
+        model_feature_metadata: dict[str, Any],
     ) -> dict[str, Any]:
-        if stock_price_indicator_features.is_empty():
+        if stock_model_features.is_empty():
             metadata = {
                 "skipped": True,
-                "reason": "stock_price_indicator_features is empty",
+                "reason": "stock_model_features is empty",
             }
             _log_step("publish_indicator_model_features", **metadata)
             return metadata
 
-        metadata = self.feature_store.publish_model_features(stock_price_indicator_features)
-        metadata["indicator_feature_rows"] = indicator_feature_metadata.get(
-            "indicator_feature_rows",
-            len(stock_price_indicator_features),
+        metadata = self.feature_store.publish_model_features(stock_model_features)
+        metadata["model_feature_rows"] = model_feature_metadata.get(
+            "model_feature_rows",
+            len(stock_model_features),
         )
         _log_step("publish_indicator_model_features", **metadata)
         return metadata

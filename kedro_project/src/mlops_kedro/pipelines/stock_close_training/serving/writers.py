@@ -124,7 +124,11 @@ def _write_conventional_gap_trading_to_timescale(df: pl.DataFrame) -> int:
     if df.is_empty():
         return 0
 
-    columns = CONVENTIONAL_GAP_TRADING_COLUMNS
+    columns = [
+        column
+        for column in CONVENTIONAL_GAP_TRADING_COLUMNS
+        if column in df.columns
+    ]
     update_columns = [
         column
         for column in columns

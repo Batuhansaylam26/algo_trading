@@ -1,6 +1,10 @@
 from typing import Any
 
 
+def _ordered_unique(columns: list[str]) -> list[str]:
+    return list(dict.fromkeys(columns))
+
+
 DEFAULT_COLUMN_CONFIG: dict[str, list[str]] = {
     "entity": ["symbol", "date"],
     "price": ["open", "high", "low", "close", "volume"],
@@ -149,10 +153,23 @@ def resolve_column_config(columns: dict[str, Any]) -> dict[str, list[str]]:
         columns.get(
             "tier_5_features",
             [
-                *tier_4_feature_columns,
                 *daily_lookback_feature_columns,
                 *weekly_lookback_feature_columns,
             ],
+        )
+    )
+    model_feature_columns = _ordered_unique(
+        list(
+            columns.get(
+                "model_features",
+                [
+                    *tier_1_feature_columns,
+                    *tier_2_feature_columns,
+                    *tier_3_feature_columns,
+                    *tier_4_feature_columns,
+                    *tier_5_feature_columns,
+                ],
+            )
         )
     )
     indicator_feature_columns = list(
@@ -162,12 +179,7 @@ def resolve_column_config(columns: dict[str, Any]) -> dict[str, list[str]]:
                 *entity_columns,
                 *output_audit_columns,
                 *price_columns,
-                *analytics_calendar_columns,
                 *target_columns,
-                *tier_1_feature_columns,
-                *model_time_feature_columns,
-                *daily_lookback_feature_columns,
-                *weekly_lookback_feature_columns,
                 *indicator_columns,
             ],
         )
@@ -204,6 +216,7 @@ def resolve_column_config(columns: dict[str, Any]) -> dict[str, list[str]]:
         "tier_3_features": tier_3_feature_columns,
         "tier_4_features": tier_4_feature_columns,
         "tier_5_features": tier_5_feature_columns,
+        "model_features": model_feature_columns,
         "fourier_time_encoding": configured_list(columns, "fourier_time_encoding"),
         "daily_lookback_features": daily_lookback_feature_columns,
         "weekly_lookback_features": weekly_lookback_feature_columns,
@@ -220,14 +233,16 @@ def resolve_column_config(columns: dict[str, Any]) -> dict[str, list[str]]:
         "conventional_gap_trading": conventional_gap_trading_columns,
         "close_model_time_features": close_model_time_feature_columns,
         "close_model_dataset": close_model_dataset_columns,
+        "indicator_ready": list(
+            columns.get(
+                "indicator_ready",
+                indicator_columns,
+            )
+        ),
         "model_ready": list(
             columns.get(
                 "model_ready",
-                [
-                    *tier_1_feature_columns,
-                    *model_time_feature_columns,
-                    *indicator_columns,
-                ],
+                model_feature_columns,
             )
         ),
     }

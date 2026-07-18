@@ -148,6 +148,36 @@ def _create_timescale_conventional_gap_trading_table(cursor) -> None:
             DROP COLUMN IF EXISTS prev_close;
         """
     )
+    obsolete_columns = [
+        "month",
+        "day",
+        "day_of_year",
+        "prev_open",
+        "prev_high",
+        "prev_low",
+        "prev_volume",
+        "calendar_gap_days",
+        "month_sin_1",
+        "month_cos_1",
+        "month_sin_2",
+        "month_cos_2",
+        "day_sin_1",
+        "day_cos_1",
+        "day_sin_2",
+        "day_cos_2",
+        "day_of_year_sin_1",
+        "day_of_year_cos_1",
+        "day_of_year_sin_2",
+        "day_of_year_cos_2",
+    ]
+    for column in obsolete_columns:
+        if column not in CONVENTIONAL_GAP_TRADING_COLUMNS:
+            cursor.execute(
+                f"""
+                ALTER TABLE {TIMESCALE_CONVENTIONAL_GAP_TRADING_TABLE}
+                    DROP COLUMN IF EXISTS "{column}";
+                """
+            )
     cursor.execute("CREATE EXTENSION IF NOT EXISTS timescaledb;")
     cursor.execute(
         """

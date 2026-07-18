@@ -18,9 +18,7 @@ FEATURE_REPO_RUNTIME = Path("/opt/feature_repo")
 KEDRO_RUNTIME = Path("/opt/kedro_project")
 PECNET_RUNTIME = Path("/opt/pecnetframework")
 REQUIREMENTS_RUNTIME = Path("/opt/requirements-runtime.txt")
-DUCKDB_RUNTIME = Path(
-    "/workspaces/yahooquery_lakehouse_revamp/database/duckdb/dataops_mlops.duckdb"
-)
+DUCKDB_RUNTIME = Path("/opt/duckdb/dataops_mlops.duckdb")
 LEGACY_DUCKDB_RUNTIME = Path("/opt/dataops_mlops.duckdb")
 
 EXCLUDED_DIRS = {

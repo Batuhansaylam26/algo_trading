@@ -213,7 +213,7 @@ ln -sf /root/.duckdb/cli/latest/duckdb /usr/local/bin/duckdb
 Start it from the DuckDB CLI:
 
 ```bash
-duckdb /workspaces/yahooquery_lakehouse_revamp/database/duckdb/dataops_mlops.duckdb -ui
+duckdb /opt/duckdb/dataops_mlops.duckdb -ui
 ```
 
 Or from SQL:

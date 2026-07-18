@@ -28,6 +28,12 @@ stock_price_indicator_features:
 indicator_feature_metadata:
   type: MemoryDataset
 
+stock_model_features:
+  type: MemoryDataset
+
+stock_model_feature_metadata:
+  type: MemoryDataset
+
 model_feature_publish_metadata:
   type: MemoryDataset
 

@@ -96,14 +96,16 @@ def _indicator_feature_nodes() -> list:
             outputs=[
                 "stock_price_indicator_features",
                 "indicator_feature_metadata",
+                "stock_model_features",
+                "stock_model_feature_metadata",
             ],
             name="prepare_indicator_features",
         ),
         node(
             func=stock_close_data_nodes.publish_indicator_model_features,
             inputs=[
-                "stock_price_indicator_features",
-                "indicator_feature_metadata",
+                "stock_model_features",
+                "stock_model_feature_metadata",
             ],
             outputs="model_feature_publish_metadata",
             name="publish_indicator_model_features",

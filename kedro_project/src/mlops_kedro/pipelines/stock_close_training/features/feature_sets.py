@@ -15,6 +15,7 @@ TIER_2_FEATURE_COLUMNS = _COLUMNS["tier_2_features"]
 TIER_3_FEATURE_COLUMNS = _COLUMNS["tier_3_features"]
 TIER_4_FEATURE_COLUMNS = _COLUMNS["tier_4_features"]
 TIER_5_FEATURE_COLUMNS = _COLUMNS["tier_5_features"]
+MODEL_FEATURE_COLUMNS = _COLUMNS["model_features"]
 MODEL_TIER_FEATURE_COLUMNS = {
     "tier1": TIER_1_FEATURE_COLUMNS,
     "tier2": TIER_2_FEATURE_COLUMNS,
@@ -40,5 +41,9 @@ FEAST_ENTITY_COLUMNS = [
 ]
 FEAST_OFFLINE_COLUMNS = [
     *FEAST_ENTITY_COLUMNS,
-    *TIER_5_FEATURE_COLUMNS,
+    *MODEL_FEATURE_COLUMNS,
 ]
+
+
+def stock_price_indicator_features_path(bucket: str) -> str:
+    return f"s3://{bucket}/feature_engineering/stock_price_indicators"

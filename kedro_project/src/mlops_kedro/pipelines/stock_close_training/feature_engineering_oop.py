@@ -214,6 +214,26 @@ class StockCloseFeatureEngineering:
             silver_stock_prices_weekly,
         )
 
+    def build_stock_model_features(
+        self,
+        silver_stock_prices: pl.DataFrame,
+        silver_stock_prices_weekly: pl.DataFrame | None = None,
+    ) -> pl.DataFrame:
+        return self.indicator_builder.build_model_features(
+            silver_stock_prices,
+            silver_stock_prices_weekly,
+        )
+
+    def build_stock_feature_sets(
+        self,
+        silver_stock_prices: pl.DataFrame,
+        silver_stock_prices_weekly: pl.DataFrame | None = None,
+    ) -> tuple[pl.DataFrame, pl.DataFrame]:
+        return self.indicator_builder.build_feature_sets(
+            silver_stock_prices,
+            silver_stock_prices_weekly,
+        )
+
     def build_conventional_gap_trading_features(
         self,
         stock_price_indicator_features: pl.DataFrame,

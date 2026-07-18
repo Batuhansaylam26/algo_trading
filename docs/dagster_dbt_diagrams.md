@@ -18,6 +18,7 @@ flowchart LR
     BDaily --> SDaily
     BWeekly --> SWeekly
     SDaily --> DBT
+    SWeekly --> DBT
     DBT --> DuckDB
     BDaily -. "Delta IO Manager" .-> MinIO
     BWeekly -. "Delta IO Manager" .-> MinIO
@@ -81,17 +82,25 @@ classDiagram
 
 ```mermaid
 flowchart LR
-    SilverSource["source('silver', 'stock_prices')\ns3://delta-lake-bucket/silver/stock_prices"]
-    ReadSilver["read_silver_stock_prices\nschema=query\nview"]
+    SilverDailySource["source('silver', 'stock_prices')\ns3://delta-lake-bucket/silver/stock_prices"]
+    SilverWeeklySource["source('silver', 'stock_prices_weekly')\ns3://delta-lake-bucket/silver/stock_prices_weekly"]
+    ReadSilverDaily["read_silver_stock_prices\nschema=query\nview"]
+    ReadSilverWeekly["read_silver_stock_prices_weekly\nschema=query\nview"]
     DailyMart["stock_price_daily\nschema=marts\nview"]
+    WeeklyMart["stock_price_weekly\nschema=marts\nview"]
     DuckDBFile["dataops_mlops.duckdb"]
     MinIO["MinIO Delta Lake"]
 
-    MinIO --> SilverSource
-    SilverSource -->|"delta_scan()"| ReadSilver
-    ReadSilver --> DailyMart
-    ReadSilver -. "DuckDB relation" .-> DuckDBFile
+    MinIO --> SilverDailySource
+    MinIO --> SilverWeeklySource
+    SilverDailySource -->|"delta_scan()"| ReadSilverDaily
+    SilverWeeklySource -->|"delta_scan()"| ReadSilverWeekly
+    ReadSilverDaily --> DailyMart
+    ReadSilverWeekly --> WeeklyMart
+    ReadSilverDaily -. "DuckDB relation" .-> DuckDBFile
+    ReadSilverWeekly -. "DuckDB relation" .-> DuckDBFile
     DailyMart -. "DuckDB relation" .-> DuckDBFile
+    WeeklyMart -. "DuckDB relation" .-> DuckDBFile
 ```
 
 ## dbt ER
@@ -124,6 +133,33 @@ erDiagram
         float volume
     }
 
+    SILVER_STOCK_PRICES_WEEKLY {
+        string symbol PK
+        datetime date PK
+        integer year
+        integer month
+        integer day
+        float open
+        float high
+        float low
+        float close
+        float volume
+    }
+
+    READ_SILVER_STOCK_PRICES_WEEKLY {
+        string symbol PK
+        datetime date PK
+        integer year
+        integer month
+        integer day
+        integer week
+        float open
+        float high
+        float low
+        float close
+        float volume
+    }
+
     STOCK_PRICE_DAILY {
         string symbol PK
         date trading_date PK
@@ -138,16 +174,32 @@ erDiagram
         integer bar_count
     }
 
+    STOCK_PRICE_WEEKLY {
+        string symbol PK
+        date week_start_date PK
+        integer year
+        integer month
+        integer week
+        float open
+        float high
+        float low
+        float close
+        float volume
+    }
+
     SILVER_STOCK_PRICES ||--|| READ_SILVER_STOCK_PRICES : delta_scan
     READ_SILVER_STOCK_PRICES ||--o{ STOCK_PRICE_DAILY : daily_aggregation
+    SILVER_STOCK_PRICES_WEEKLY ||--|| READ_SILVER_STOCK_PRICES_WEEKLY : delta_scan
+    READ_SILVER_STOCK_PRICES_WEEKLY ||--o{ STOCK_PRICE_WEEKLY : weekly_projection
 ```
 
 ## Operational Notes
 
 - Dagster writes daily and weekly bronze/silver Delta tables to MinIO through
   `MyDeltaLakeIOManager`.
-- dbt currently reads the daily silver table only:
-  `s3://delta-lake-bucket/silver/stock_prices`.
-- Weekly silver is consumed by Kedro tier5 feature engineering, not by the
-  current dbt marts.
+- dbt reads both daily and weekly silver Delta tables:
+  `s3://delta-lake-bucket/silver/stock_prices` and
+  `s3://delta-lake-bucket/silver/stock_prices_weekly`.
+- Weekly silver is exposed through `read_silver_stock_prices_weekly` and
+  `stock_price_weekly`, both materialized as DuckDB views.
 - dbt writes query/mart views into DuckDB using `DBT_DUCKDB_PATH`.

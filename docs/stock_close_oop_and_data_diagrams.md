@@ -40,6 +40,8 @@ classDiagram
         +write_delta_table()
         +build_stock_close_model_dataset()
         +build_stock_price_indicator_features()
+        +build_stock_model_features()
+        +build_stock_feature_sets()
         +build_conventional_gap_trading_features()
     }
 
@@ -57,6 +59,8 @@ classDiagram
 
     class StockPriceIndicatorFeatureBuilder {
         +build(silver_stock_prices, silver_stock_prices_weekly)
+        +build_model_features(silver_stock_prices, silver_stock_prices_weekly)
+        +build_feature_sets(silver_stock_prices, silver_stock_prices_weekly)
     }
 
     class LookbackFeatureBuilder {
@@ -149,7 +153,7 @@ classDiagram
     StockCloseFeatureEngineering --> StockPriceIndicatorFeatureBuilder : composed
     StockCloseFeatureEngineering --> LookbackFeatureBuilder : composed
     StockCloseFeatureEngineering --> ConventionalGapTradingFeatureBuilder : composed
-    StockPriceIndicatorFeatureBuilder --> LookbackFeatureBuilder : daily4/weekly4 features
+    StockPriceIndicatorFeatureBuilder --> LookbackFeatureBuilder : model feature lookbacks only
     StockCloseDataNodes --> FeatureStoreService : publish/load
     StockCloseModelNodes --> MLForecastService : delegates
     StockCloseModelNodes --> StatsForecastService : delegates
@@ -171,6 +175,9 @@ erDiagram
     SILVER_STOCK_PRICES {
         string symbol PK
         datetime date PK
+        integer year
+        integer month
+        integer day
         float open
         float high
         float low
@@ -181,6 +188,9 @@ erDiagram
     SILVER_STOCK_PRICES_WEEKLY {
         string symbol PK
         datetime date PK
+        integer year
+        integer month
+        integer day
         float open
         float high
         float low
@@ -204,20 +214,39 @@ erDiagram
     STOCK_MODEL_FEATURES {
         string symbol PK
         datetime date PK
+        datetime created_timestamp
+        float prev_open
+        float prev_high
+        float prev_low
+        float prev_volume
+        int calendar_gap_days
+        float month_sin_1
+        float month_cos_1
+        float day_sin_1
+        float day_cos_1
+        float day_of_year_sin_1
+        float day_of_year_cos_1
+        float daily_lookback_features
+        float weekly_lookback_features
+    }
+
+    STOCK_PRICE_INDICATOR_FEATURES {
+        string symbol PK
+        datetime date PK
+        datetime created_timestamp
         float open
         float high
         float low
         float close
         float volume
-        int calendar_gap_days
+        float target_close
         float RSI
         float SMA_Short
         float SMA_Long
+        float Vol_SMA
+        float Range_high
+        float Range_low
         float ADX
-        float daily_open_lag_1
-        float daily_high_lag_4
-        float weekly_open_lag_1
-        float weekly_close_lag_4
     }
 
     CONVENTIONAL_GAP_TRADING {
@@ -247,13 +276,17 @@ erDiagram
     }
 
     PECNET_PREPROCESSED_TRAINING_DATA {
-        string tier_name PK
-        string ticker PK
-        string feature_name PK
-        int sample_index PK
-        float feature_value
+        string row_key PK
+        datetime event_timestamp PK
+        string tier
+        string symbol
         string split
-        datetime ds
+        string variable_name
+        int sample_index
+        int step_index
+        float value
+        float target_y
+        datetime created_timestamp
     }
 
     MLFLOW_RUNS {
@@ -283,12 +316,27 @@ erDiagram
     }
 
     SILVER_STOCK_PRICES ||--o{ STOCK_CLOSE_MODEL_DATASET : close_dataset
-    SILVER_STOCK_PRICES ||--o{ STOCK_MODEL_FEATURES : indicators
+    SILVER_STOCK_PRICES ||--o{ STOCK_PRICE_INDICATOR_FEATURES : technical_indicators
+    SILVER_STOCK_PRICES ||--o{ STOCK_MODEL_FEATURES : model_time_and_daily_lookbacks
     SILVER_STOCK_PRICES_WEEKLY ||--o{ STOCK_MODEL_FEATURES : weekly_lookbacks
-    STOCK_MODEL_FEATURES ||--o{ CONVENTIONAL_GAP_TRADING : strategy_signals
+    STOCK_PRICE_INDICATOR_FEATURES ||--o{ CONVENTIONAL_GAP_TRADING : strategy_signals
     STOCK_CLOSE_MODEL_DATASET ||--o{ TRAINING_DATASET : target_series
     STOCK_MODEL_FEATURES ||--o{ TRAINING_DATASET : tier_features
     TRAINING_DATASET ||--o{ PECNET_PREPROCESSED_TRAINING_DATA : pecnet_windows
     TRAINING_DATASET ||--o{ MLFLOW_RUNS : trains
     MLFLOW_RUNS ||--o{ ROOT_MODEL_PERFORMANCE : root_inference_metrics
 ```
+
+## Data Notes
+
+- `stock_price_indicator_features` is a Delta feature-engineering dataset for
+  indicator and conventional gap research. It keeps `date`, OHLCV,
+  `target_close`, and technical indicators only; it does not carry calendar,
+  `prev_*`, Fourier time encodings, or daily/weekly lag columns.
+- `stock_model_features` is the Feast/Timescale model feature table. It carries
+  model-tier features such as `prev_*`, `calendar_gap_days`, Fourier encodings,
+  and daily/weekly lookback columns for MLForecast and StatsForecast tiers.
+- PECNet tier5 uses the configured tier5 feature columns from
+  `parameters_machine_learning.yml`, including daily and weekly lookback
+  columns, then applies the PECNet framework's `DataPreprocessor` sampling,
+  statistics, and wavelet steps to each selected input series.

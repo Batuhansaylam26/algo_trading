@@ -19,10 +19,33 @@ models:
       - name: high
         description: "Daily high."
       - name: avg_open
-        description: "Average intraday open price."
+        description: "Average source open price for the trading date."
       - name: avg_close
-        description: "Average intraday close price."
+        description: "Average source close price for the trading date."
       - name: total_volume
         description: "Total daily volume."
       - name: bar_count
-        description: "Number of intraday bars in the day."
+        description: "Number of source rows in the day."
+  - name: stock_price_weekly
+    description: "Weekly stock-price mart built from the weekly silver query-layer view."
+    columns:
+      - name: symbol
+        description: "Ticker symbol."
+      - name: year
+        description: "Trading year."
+      - name: month
+        description: "Trading month."
+      - name: week
+        description: "Trading week."
+      - name: week_start_date
+        description: "Weekly bar timestamp cast to a date."
+      - name: open
+        description: "Weekly open."
+      - name: high
+        description: "Weekly high."
+      - name: low
+        description: "Weekly low."
+      - name: close
+        description: "Weekly close."
+      - name: volume
+        description: "Weekly traded volume."
