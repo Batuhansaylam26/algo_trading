@@ -4,7 +4,7 @@ provider: local
 
 offline_store:
   type: postgres
-  host: host.docker.internal
+  host: 127.0.0.1
   port: 5432
   database: dataops
   db_schema: feature_store
@@ -15,6 +15,6 @@ offline_store:
 
 online_store:
   type: redis
-  connection_string: "host.docker.internal:6379"
+  connection_string: "127.0.0.1:6379"
 
 entity_key_serialization_version: 3

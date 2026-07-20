@@ -1,0 +1,11 @@
+{
+  "dynamic_features": "prev_open,prev_high,prev_low,prev_volume",
+  "freq": "B",
+  "model_input_columns": "unique_id,ds,y",
+  "n_trials": 10,
+  "n_windows": 5,
+  "test_horizon": 120,
+  "tier_name": "tier1",
+  "validation_horizon": 120,
+  "verbose": true
+}

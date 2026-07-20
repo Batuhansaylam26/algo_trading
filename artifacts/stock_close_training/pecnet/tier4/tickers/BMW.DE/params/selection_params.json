@@ -1,0 +1,17 @@
+{
+  "correlation_threshold": 0.08,
+  "force_include_best_if_first": true,
+  "max_selected_features": null,
+  "max_selected_features_by_tier": {
+    "tier4": 5,
+    "tier5": 5
+  },
+  "strategy_by_tier": {
+    "tier1": "all_features",
+    "tier2": "all_features",
+    "tier3": "residual_correlation",
+    "tier4": "thesis_wavelet_error_compensated_fusion",
+    "tier5": "residual_correlation",
+    "tier6": "all_features"
+  }
+}

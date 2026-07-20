@@ -1,0 +1,99 @@
+{
+  "_mlflow": {
+    "aws_access_key_id": "admin",
+    "aws_default_region": "us-east-1",
+    "aws_secret_access_key": "admin1234",
+    "experiment_name": "stock_close_training",
+    "experiment_setup_retries": 3,
+    "request_backoff_factor": 1,
+    "request_max_retries": 1,
+    "request_timeout": 60,
+    "s3_endpoint_url": "auto",
+    "server_ready_timeout": 30,
+    "tier_experiment_prefix": "stock_close",
+    "tracking_uri": "auto"
+  },
+  "_mlforecast": {
+    "estimator_verbose": false,
+    "freq": "B",
+    "models": [
+      "Ridge",
+      "RandomForest",
+      "LightGBM",
+      "XGBoost",
+      "CatBoost"
+    ],
+    "n_trials": 10,
+    "n_windows": 5,
+    "test_horizon": 120,
+    "validation_horizon": 120,
+    "verbose": true
+  },
+  "_runtime": {
+    "local_artifact_dir": "artifacts/stock_close_training",
+    "local_artifacts_enabled": true,
+    "mlforecast_num_threads": -1,
+    "model_max_estimators": 300,
+    "model_n_jobs": -1,
+    "pecnet_mps_fallback": true,
+    "pecnet_n_jobs": -1,
+    "pecnet_torch_device": "auto",
+    "pecnet_torch_threads_per_worker": 1
+  },
+  "enabled": true,
+  "feature_columns": [
+    "prev_open",
+    "prev_high",
+    "prev_low",
+    "prev_volume"
+  ],
+  "hyperparams": {
+    "batch_size": 96,
+    "epoch_size": 150,
+    "hidden_units_sizes": [
+      32,
+      64,
+      32,
+      16
+    ],
+    "learning_rate": 0.001,
+    "seed": 42
+  },
+  "preprocess_params": {
+    "conjoincy": false,
+    "error_sequence_size": 8,
+    "normalization_type": null,
+    "sampling_periods": [
+      1,
+      2,
+      4
+    ],
+    "sampling_statistics": [
+      "mean",
+      "std"
+    ],
+    "scale_factor": 1.3,
+    "sequence_size": 4,
+    "target_normalization_type": "window_mean",
+    "wavelet_type": "haar"
+  },
+  "selection_params": {
+    "correlation_threshold": 0.08,
+    "force_include_best_if_first": true,
+    "max_selected_features": null,
+    "max_selected_features_by_tier": {
+      "tier4": 5,
+      "tier5": 5
+    },
+    "strategy_by_tier": {
+      "tier1": "all_features",
+      "tier2": "all_features",
+      "tier3": "residual_correlation",
+      "tier4": "thesis_wavelet_error_compensated_fusion",
+      "tier5": "residual_correlation",
+      "tier6": "all_features"
+    }
+  },
+  "test_horizon": 120,
+  "tier_name": "tier1"
+}

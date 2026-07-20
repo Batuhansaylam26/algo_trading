@@ -1,9 +1,9 @@
 dataops_mlops:
-  target: dev
+  target: local
   outputs:
-    dev:
+    local:
       type: duckdb
-      path: "{{ env_var('DBT_DUCKDB_PATH', './dataops_mlops.duckdb') }}"
+      path: "/Users/batuhansaylam/Documents/Codex/2026-07-04/a/outputs/yahooquery_lakehouse_revamp/database/duckdb/dataops_mlops.duckdb"
       threads: 4
 
       extensions:
@@ -13,10 +13,30 @@ dataops_mlops:
       secrets:
         - type: s3
           provider: config
-          key_id: "{{ env_var('DELTA_LAKE_S3_ACCESS_KEY', 'admin') }}"
-          secret: "{{ env_var('DELTA_LAKE_S3_SECRET_KEY', 'admin1234') }}"
+          key_id: admin
+          secret: admin1234
+          region: us-east-1
+          endpoint: 127.0.0.1:9000
+          use_ssl: false
+          url_style: path
+          scope: "s3://delta-lake-bucket"
+
+    devcontainer:
+      type: duckdb
+      path: "/opt/duckdb/dataops_mlops.duckdb"
+      threads: 4
+
+      extensions:
+        - httpfs
+        - delta
+
+      secrets:
+        - type: s3
+          provider: config
+          key_id: admin
+          secret: admin1234
           region: us-east-1
           endpoint: host.docker.internal:9000
           use_ssl: false
           url_style: path
-          scope: "s3://{{ env_var('DELTA_LAKE_S3_BUCKET', 'delta-lake-bucket') }}"
+          scope: "s3://delta-lake-bucket"

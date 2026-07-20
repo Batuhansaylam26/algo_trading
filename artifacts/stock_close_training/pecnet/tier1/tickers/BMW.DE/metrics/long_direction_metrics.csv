@@ -1,0 +1,2 @@
+unique_id,model,mae,rmse,mape,r2,rows,long_accuracy,long_precision,long_recall,long_signal_rate
+BMW.DE,PECNet,,,,,110,0.6,0.42857142857142855,0.06976744186046512,0.06363636363636363

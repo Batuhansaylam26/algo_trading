@@ -1,0 +1,20 @@
+{
+  "feature_columns": "weekly_close_lag_1,calendar_gap_days,month_sin_1,month_cos_1,month_sin_2,month_cos_2,day_sin_1,day_cos_1,day_sin_2,day_cos_2,day_of_year_sin_1,day_of_year_cos_1,day_of_year_sin_2,day_of_year_cos_2",
+  "pecnet.batch_size": 96,
+  "pecnet.correlation_threshold": 0.08,
+  "pecnet.epoch_size": 500,
+  "pecnet.learning_rate": 0.001,
+  "pecnet.max_selected_features": "",
+  "pecnet.max_selected_features_for_tier": "",
+  "pecnet.seed": 42,
+  "pecnet.selection_strategy": "all_features",
+  "pecnet.torch_cuda_available": false,
+  "pecnet.torch_device": "mps",
+  "pecnet.torch_device_requested": "auto",
+  "pecnet.torch_mps_available": true,
+  "pecnet.torch_num_interop_threads": 1,
+  "pecnet.torch_num_threads": 1,
+  "test_horizon": 120,
+  "ticker": "AAPL",
+  "tier_name": "tier6"
+}

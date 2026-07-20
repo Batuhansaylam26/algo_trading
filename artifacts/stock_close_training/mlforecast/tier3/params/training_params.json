@@ -1,0 +1,11 @@
+{
+  "dynamic_features": "prev_open,prev_high,prev_low,prev_volume,calendar_gap_days,month_sin_1,month_cos_1,month_sin_2,month_cos_2,day_sin_1,day_cos_1,day_sin_2,day_cos_2,day_of_year_sin_1,day_of_year_cos_1,day_of_year_sin_2,day_of_year_cos_2",
+  "freq": "B",
+  "model_input_columns": "unique_id,ds,y",
+  "n_trials": 10,
+  "n_windows": 5,
+  "test_horizon": 120,
+  "tier_name": "tier3",
+  "validation_horizon": 120,
+  "verbose": true
+}

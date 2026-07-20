@@ -1,28 +1,9 @@
-import os
-import warnings
+from __future__ import annotations
 
+from .runtime_class import *  # noqa: F403
+from .runtime_class import TrainingRuntime
 
-def cpu_count_from_env(env_name: str, default: int = 1) -> int:
-    requested = int(os.getenv(env_name, str(default)))
-    if requested <= 0:
-        return os.cpu_count() or 1
-    return requested
-
-
-def bool_from_env(env_name: str, default: bool = False) -> bool:
-    value = os.getenv(env_name)
-    if value is None:
-        return default
-    return value.lower() in {"1", "true", "yes"}
-
-
-def filter_sklearn_parallel_warnings() -> None:
-    warnings.filterwarnings(
-        "ignore",
-        message=(
-            "`sklearn.utils.parallel.delayed` should be used with "
-            "`sklearn.utils.parallel.Parallel`.*"
-        ),
-        category=UserWarning,
-        module="sklearn.utils.parallel",
-    )
+training_runtime = TrainingRuntime()
+cpu_count_from_env = training_runtime.cpu_count_from_env
+bool_from_env = training_runtime.bool_from_env
+filter_sklearn_parallel_warnings = training_runtime.filter_sklearn_parallel_warnings

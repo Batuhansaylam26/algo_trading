@@ -1,0 +1,10 @@
+{
+  "batch_size": 64,
+  "epoch_size": 500,
+  "hidden_units_sizes": [
+    64,
+    32
+  ],
+  "learning_rate": 0.001,
+  "seed": 42
+}

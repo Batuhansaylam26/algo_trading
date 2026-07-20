@@ -32,27 +32,37 @@ flowchart LR
 classDiagram
     direction LR
 
-    class Definitions {
-        +assets
-        +resources
-        +executor
+    class DagsterDefinitionsFactory {
+        +running_in_container()
+        +local_service_url()
+        +configure_aws_environment()
+        +build_definitions()
     }
 
-    class BronzeAssets {
+    class BronzeStockPriceAssets {
+        +load_yahooquery_history()
+        +stock_price_metadata()
         +stock_prices()
         +stock_prices_weekly()
     }
 
-    class SilverAssets {
+    class SilverStockPriceAssets {
+        +column_gt_zero()
+        +column_ge_zero()
+        +high_gte_low()
+        +unique_symbol_date()
+        +standardize_stock_prices()
+        +deduplicate_stock_prices()
+        +add_calendar_columns()
         +stock_prices()
         +stock_prices_weekly()
         +STOCK_PRICE_SCHEMA
     }
 
-    class DbtAssets {
+    class DagsterDbtAssets {
         +dbt_models()
-        +_ensure_manifest_path()
-        +_run_dbt_parse()
+        +ensure_manifest_path()
+        +run_dbt_parse()
     }
 
     class MyDeltaLakeIOManager {
@@ -67,16 +77,21 @@ classDiagram
     class DeltaLakePolarsTypeHandler
     class S3Config
 
-    Definitions --> BronzeAssets : registers
-    Definitions --> SilverAssets : registers
-    Definitions --> DbtAssets : registers
-    Definitions --> MyDeltaLakeIOManager : delta_io_manager
-    Definitions --> DbtCliResource : dbt resource
+    DagsterDefinitionsFactory --> BronzeStockPriceAssets : registers asset objects
+    DagsterDefinitionsFactory --> SilverStockPriceAssets : registers asset objects
+    DagsterDefinitionsFactory --> DagsterDbtAssets : registers dbt asset object
+    DagsterDefinitionsFactory --> MyDeltaLakeIOManager : delta_io_manager
+    DagsterDefinitionsFactory --> DbtCliResource : dbt resource
     MyDeltaLakeIOManager --> DeltaLakePolarsTypeHandler : handles Polars frames
     MyDeltaLakeIOManager --> S3Config : MinIO/S3 options
-    SilverAssets --> BronzeAssets : AssetIn dependencies
-    DbtAssets --> DbtCliResource : dbt build
+    SilverStockPriceAssets --> BronzeStockPriceAssets : AssetIn dependencies
+    DagsterDbtAssets --> DbtCliResource : dbt build
 ```
+
+Dagster still receives top-level asset objects named `stock_prices`,
+`stock_prices_weekly`, and `dbt_models` from facade modules, but their compute
+functions live as static methods in one-class implementation modules. This keeps
+Dagster discovery stable while matching the project OOP convention.
 
 ## dbt Model Lineage
 
@@ -193,6 +208,25 @@ erDiagram
     READ_SILVER_STOCK_PRICES_WEEKLY ||--o{ STOCK_PRICE_WEEKLY : weekly_projection
 ```
 
+## Runtime Storage Layout
+
+```mermaid
+flowchart LR
+    Dagster["Dagster assets"]
+    dbt["dbt views"]
+    Kedro["Kedro ML pipelines"]
+    MinIO["MinIO buckets\nDelta Lake + MLflow model artifacts"]
+    DuckDB["DuckDB file\ndataops_mlops.duckdb"]
+    Timescale["TimescaleDB\nfeature_store + marts"]
+    LocalArtifacts["Git-tracked lightweight artifacts\nartifacts/stock_close_training"]
+
+    Dagster -->|"bronze/silver Delta writes"| MinIO
+    dbt -->|"query/mart views"| DuckDB
+    Kedro -->|"feature serving tables"| Timescale
+    Kedro -->|"MLflow model artifacts"| MinIO
+    Kedro -->|"params, metric CSVs, compact plots"| LocalArtifacts
+```
+
 ## Operational Notes
 
 - Dagster writes daily and weekly bronze/silver Delta tables to MinIO through
@@ -203,3 +237,6 @@ erDiagram
 - Weekly silver is exposed through `read_silver_stock_prices_weekly` and
   `stock_price_weekly`, both materialized as DuckDB views.
 - dbt writes query/mart views into DuckDB using `DBT_DUCKDB_PATH`.
+- Lightweight Kedro artifacts under `artifacts/stock_close_training` are
+  intentionally Git-trackable. Heavy runtime data remains in MinIO, TimescaleDB,
+  or DuckDB instead of the project artifact folder.

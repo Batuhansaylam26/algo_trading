@@ -1,0 +1,2 @@
+unique_id,model,mae,rmse,mape,r2,rows,long_accuracy,long_precision,long_recall,long_signal_rate
+AAPL,PECNet,4.230290058691051,5.587108307414321,1.48667940020785,0.9408749179360674,110,,,,

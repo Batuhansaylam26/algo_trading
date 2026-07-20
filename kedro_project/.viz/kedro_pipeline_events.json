@@ -1,0 +1,52 @@
+[
+  {
+    "event": "before_pipeline_run",
+    "timestamp": "2026-07-20T05:40:30.042849+00:00"
+  },
+  {
+    "event": "after_dataset_loaded",
+    "dataset": "params:stock_close_machine_learning.mlflow",
+    "node_id": "6248223e",
+    "status": "Available",
+    "size": 0
+  },
+  {
+    "event": "after_node_run",
+    "node": "evaluate_root_model_performance_from_mlflow",
+    "node_id": "d272fdd3",
+    "duration": 7.620867541001644,
+    "status": "success"
+  },
+  {
+    "event": "after_dataset_saved",
+    "dataset": "root_model_performance_predictions",
+    "node_id": "45cdcb94",
+    "status": "Available",
+    "size": 0
+  },
+  {
+    "event": "after_dataset_saved",
+    "dataset": "root_model_performance_regression_metrics",
+    "node_id": "87caf65b",
+    "status": "Available",
+    "size": 0
+  },
+  {
+    "event": "after_dataset_saved",
+    "dataset": "root_model_performance_long_direction_metrics",
+    "node_id": "a18ab867",
+    "status": "Available",
+    "size": 0
+  },
+  {
+    "event": "after_dataset_saved",
+    "dataset": "root_model_performance_metadata",
+    "node_id": "70c79557",
+    "status": "Available",
+    "size": 0
+  },
+  {
+    "event": "after_pipeline_run",
+    "timestamp": "2026-07-20T05:40:37.672851+00:00"
+  }
+]

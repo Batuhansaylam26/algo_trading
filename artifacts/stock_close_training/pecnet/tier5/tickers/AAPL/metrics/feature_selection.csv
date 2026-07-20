@@ -1,0 +1,2 @@
+ticker,tier,strategy,selection_order,feature_index,feature_name,reference_name,correlation,abs_correlation,threshold
+AAPL,tier5,residual_correlation,1,0,target_history,target_y,-0.6679634857702502,0.6679634857702502,0.08

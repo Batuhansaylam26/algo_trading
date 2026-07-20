@@ -1,0 +1,2 @@
+ticker,tier,strategy,selection_order,feature_index,feature_name,reference_name,correlation,abs_correlation,threshold
+BMW.DE,tier5,residual_correlation,1,0,target_history,target_y,-0.6946307864290533,0.6946307864290533,0.08

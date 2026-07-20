@@ -11,13 +11,20 @@ stock_close_machine_learning:
       - tier5
       - tier6
 
+
   mlflow:
-    tracking_uri: http://host.docker.internal:5001
+    tracking_uri: auto
+    s3_endpoint_url: auto
+    aws_access_key_id: admin
+    aws_secret_access_key: admin1234
+    aws_default_region: us-east-1
     experiment_name: stock_close_training
     tier_experiment_prefix: stock_close
     request_timeout: 60
     request_max_retries: 1
     request_backoff_factor: 1
+    server_ready_timeout: 30
+    experiment_setup_retries: 3
 
   mlforecast:
     freq: B
@@ -266,4 +273,10 @@ stock_close_machine_learning:
   runtime:
     mlforecast_num_threads: -1
     model_n_jobs: -1
+    pecnet_n_jobs: -1
+    pecnet_torch_threads_per_worker: 1
+    pecnet_torch_device: auto
+    pecnet_mps_fallback: true
+    local_artifacts_enabled: true
+    local_artifact_dir: artifacts/stock_close_training
     model_max_estimators: 300

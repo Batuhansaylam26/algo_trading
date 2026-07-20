@@ -1,0 +1,21 @@
+Running with dbt=1.11.12
+Registered adapter: duckdb=1.10.1
+Unable to do partial parsing because config vars, config profile, or config target have changed
+Found 4 models, 2 sources, 486 macros
+
+Concurrency: 4 threads (target='local')
+
+1 of 4 START sql view model main_query.read_silver_stock_prices ................ [RUN]
+2 of 4 START sql view model main_query.read_silver_stock_prices_weekly ......... [RUN]
+1 of 4 OK created sql view model main_query.read_silver_stock_prices ........... [[32mOK[0m in 0.20s]
+3 of 4 START sql view model main_marts.stock_price_daily ....................... [RUN]
+2 of 4 OK created sql view model main_query.read_silver_stock_prices_weekly .... [[32mOK[0m in 0.21s]
+4 of 4 START sql view model main_marts.stock_price_weekly ...................... [RUN]
+3 of 4 OK created sql view model main_marts.stock_price_daily .................. [[32mOK[0m in 0.15s]
+4 of 4 OK created sql view model main_marts.stock_price_weekly ................. [[32mOK[0m in 0.17s]
+
+Finished running 4 view models in 0 hours 0 minutes and 0.64 seconds (0.64s).
+
+[32mCompleted successfully[0m
+
+Done. PASS=4 WARN=0 ERROR=0 SKIP=0 NO-OP=0 TOTAL=4

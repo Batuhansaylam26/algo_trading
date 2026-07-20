@@ -1,0 +1,6 @@
+ticker,tier,strategy,selection_order,feature_index,feature_name,reference_name,correlation,abs_correlation,threshold
+BMW.DE,tier1,all_features,1,0,target_history,target_y,,,
+BMW.DE,tier1,all_features,2,1,prev_open,residual_error,,,
+BMW.DE,tier1,all_features,3,2,prev_high,residual_error,,,
+BMW.DE,tier1,all_features,4,3,prev_low,residual_error,,,
+BMW.DE,tier1,all_features,5,4,prev_volume,residual_error,,,

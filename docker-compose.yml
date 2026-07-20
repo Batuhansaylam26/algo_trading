@@ -64,15 +64,29 @@ services:
       - "5433:5432"
     volumes:
       - mlflow_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U mlflow -d mlflow_db",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   mlflow:
-    image: python:3.12-slim
+    build:
+      context: ./docker/mlflow
+    image: yahooquery-mlflow:latest
     container_name: mlflow_server
     restart: unless-stopped
     depends_on:
-      - postgres-mlflow
-      - minio
-      - create-bucket
+      postgres-mlflow:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      create-bucket:
+        condition: service_completed_successfully
     ports:
       - "5001:5001"
     environment:
@@ -81,47 +95,13 @@ services:
       AWS_SECRET_ACCESS_KEY: "admin1234"
       PIP_DISABLE_PIP_VERSION_CHECK: "1"
       PYTHONUNBUFFERED: "1"
-    command:
-      - /bin/sh
-      - -c
-      - |
-        pip install --no-cache-dir mlflow psycopg2-binary boto3
-        python - <<'PY'
-        import boto3
-        import socket
-        import time
-        from botocore.exceptions import ClientError
-
-        for host, port in [("postgres-mlflow", 5432), ("minio", 9000)]:
-            while True:
-                try:
-                    with socket.create_connection((host, port), timeout=3):
-                        print(f"{host}:{port} is ready", flush=True)
-                        break
-                except OSError:
-                    print(f"Waiting for {host}:{port}...", flush=True)
-                    time.sleep(2)
-
-        s3 = boto3.client(
-            "s3",
-            endpoint_url="http://minio:9000",
-            aws_access_key_id="admin",
-            aws_secret_access_key="admin1234",
-            region_name="us-east-1",
-        )
-        for bucket in ["mlflow-bucket", "feast-bucket", "delta-lake-bucket"]:
-            try:
-                s3.head_bucket(Bucket=bucket)
-            except ClientError:
-                s3.create_bucket(Bucket=bucket)
-            print(f"s3://{bucket} is ready", flush=True)
-        PY
-        exec mlflow server \
-          --backend-store-uri postgresql+psycopg2://mlflow:mlflow1234@postgres-mlflow:5432/mlflow_db \
-          --default-artifact-root s3://mlflow-bucket \
-          --host 0.0.0.0 \
-          --port 5001 \
-          --allowed-hosts 'host.docker.internal:5001,localhost:*,127.0.0.1:*,mlflow,mlflow_server'
+    command: >
+      mlflow server
+      --backend-store-uri postgresql+psycopg2://mlflow:mlflow1234@postgres-mlflow:5432/mlflow_db
+      --default-artifact-root s3://mlflow-bucket
+      --host 0.0.0.0
+      --port 5001
+      --allowed-hosts 'host.docker.internal:5001,localhost:*,127.0.0.1:*,mlflow,mlflow_server'
     healthcheck:
       test:
         [

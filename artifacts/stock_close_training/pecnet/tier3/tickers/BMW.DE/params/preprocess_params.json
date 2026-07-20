@@ -1,0 +1,18 @@
+{
+  "conjoincy": false,
+  "error_sequence_size": 8,
+  "normalization_type": null,
+  "sampling_periods": [
+    1,
+    2,
+    4
+  ],
+  "sampling_statistics": [
+    "mean",
+    "std"
+  ],
+  "scale_factor": 1.3,
+  "sequence_size": 4,
+  "target_normalization_type": "window_mean",
+  "wavelet_type": "haar"
+}

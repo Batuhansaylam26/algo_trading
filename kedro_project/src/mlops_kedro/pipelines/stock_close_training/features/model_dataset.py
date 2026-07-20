@@ -65,7 +65,7 @@ class CloseModelDatasetBuilder:
                     interval=interval,
                 ).alias("ds")
             )
-            .explode("ds")
+            .explode("ds", empty_as_null=True)
         )
         if close_model_freq.upper() == "B":
             date_grid = date_grid.filter(pl.col("ds").dt.weekday() <= 5)

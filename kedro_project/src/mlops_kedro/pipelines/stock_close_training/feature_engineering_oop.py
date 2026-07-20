@@ -49,7 +49,7 @@ class StockCloseFeatureEngineering:
     def delta_storage_options() -> dict[str, str]:
         endpoint = os.getenv(
             "DELTA_LAKE_S3_ENDPOINT_URL",
-            "http://host.docker.internal:9000",
+            "http://127.0.0.1:9000",
         )
         return {
             "AWS_ACCESS_KEY_ID": os.getenv("DELTA_LAKE_S3_ACCESS_KEY", "admin"),

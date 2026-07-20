@@ -1,0 +1,20 @@
+{
+  "feature_columns": "prev_open,prev_high,prev_low,prev_volume,calendar_gap_days,month_sin_1,month_cos_1,month_sin_2,month_cos_2,day_sin_1,day_cos_1,day_sin_2,day_cos_2,day_of_year_sin_1,day_of_year_cos_1,day_of_year_sin_2,day_of_year_cos_2,daily_open_lag_1,daily_high_lag_1,daily_low_lag_1,daily_volume_lag_1,daily_open_lag_2,daily_high_lag_2,daily_low_lag_2,daily_volume_lag_2,daily_open_lag_3,daily_high_lag_3,daily_low_lag_3,daily_volume_lag_3,daily_open_lag_4,daily_high_lag_4,daily_low_lag_4,daily_volume_lag_4,weekly_open_lag_1,weekly_high_lag_1,weekly_low_lag_1,weekly_close_lag_1,weekly_volume_lag_1,weekly_open_lag_2,weekly_high_lag_2,weekly_low_lag_2,weekly_close_lag_2,weekly_volume_lag_2,weekly_open_lag_3,weekly_high_lag_3,weekly_low_lag_3,weekly_close_lag_3,weekly_volume_lag_3,weekly_open_lag_4,weekly_high_lag_4,weekly_low_lag_4,weekly_close_lag_4,weekly_volume_lag_4",
+  "pecnet.batch_size": 96,
+  "pecnet.correlation_threshold": 0.08,
+  "pecnet.epoch_size": 500,
+  "pecnet.learning_rate": 0.001,
+  "pecnet.max_selected_features": "",
+  "pecnet.max_selected_features_for_tier": 5,
+  "pecnet.seed": 42,
+  "pecnet.selection_strategy": "residual_correlation",
+  "pecnet.torch_cuda_available": false,
+  "pecnet.torch_device": "mps",
+  "pecnet.torch_device_requested": "auto",
+  "pecnet.torch_mps_available": true,
+  "pecnet.torch_num_interop_threads": 1,
+  "pecnet.torch_num_threads": 1,
+  "test_horizon": 120,
+  "ticker": "BMW.DE",
+  "tier_name": "tier5"
+}

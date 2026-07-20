@@ -1,0 +1,11 @@
+{
+  "conformal_n_windows": 5,
+  "dynamic_features": "prev_open,prev_high,prev_low,prev_volume",
+  "freq": "B",
+  "models": "AutoARIMA,AutoETS,AutoTheta,AutoRegressive",
+  "seasonal_length": 5,
+  "test_horizon": 120,
+  "tier_name": "tier1",
+  "validation_horizon": 120,
+  "verbose": true
+}

@@ -12,3 +12,6 @@ source_dir = "src"
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
+[tool.kedro_telemetry]
+project_id = "70f60c538907419c97267758a1f03a9e"
