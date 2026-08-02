@@ -11,6 +11,15 @@ stock_close_machine_learning:
       - tier5
       - tier6
 
+  walk_forward:
+    training_prediction_count: 756    # target training prediction count per block
+    testing_prediction_count: 252     # target out-of-sample testing prediction count per block
+    num_gpus: 2                       # number of GPUs to distribute work across
+    max_workers: 16                   # max parallel process workers
+    bootstrap_reps: 10000             # Stationary bootstrap repetitions for report_suite
+    output_dir: "artifacts/walk_forward_reports"
+
+
 
   mlflow:
     tracking_uri: auto

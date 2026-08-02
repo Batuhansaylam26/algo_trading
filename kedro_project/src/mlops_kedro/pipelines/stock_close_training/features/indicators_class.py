@@ -1,5 +1,9 @@
 import polars as pl
-import polars_ta.talib as pl_ta
+
+try:
+    import polars_ta.talib as pl_ta
+except (ImportError, ModuleNotFoundError):
+    pl_ta = None
 
 
 class TechnicalIndicatorCalculator:
@@ -8,6 +12,10 @@ class TechnicalIndicatorCalculator:
 
     @staticmethod
     def expressions() -> list[pl.Expr]:
+        if pl_ta is None:
+            raise ModuleNotFoundError(
+                "polars_ta.talib / TA-Lib is not installed. Install TA-Lib to compute technical indicator features."
+            )
         return [
             pl_ta.RSI(pl.col("close"), timeperiod=14).alias("RSI"),
             pl_ta.SMA(pl.col("close"), timeperiod=20).alias("SMA_Short"),
