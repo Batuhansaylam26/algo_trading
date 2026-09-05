@@ -71,6 +71,14 @@ class ModelFeatureLoader:
         _apply_close_model_dataset_definition()
         _apply_model_feature_definitions()
         close_dataset = load_stock_close_model_dataset_from_feast_online()
+        if not feature_columns:
+            return (
+                close_dataset.select(["unique_id", "ds", "y"])
+                .drop_nulls(["unique_id", "ds", "y"])
+                .unique(subset=["unique_id", "ds"], keep="last", maintain_order=True)
+                .sort(["unique_id", "ds"])
+            )
+
         entity_df = ModelFeatureLoader._read_tier2_online_entity_rows()
 
         if entity_df.empty or close_dataset.is_empty():

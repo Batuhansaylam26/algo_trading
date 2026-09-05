@@ -1,15 +1,21 @@
 stock_close_machine_learning:
   training:
     data_source: feast_online
+    date_split:
+      train_start: "2019-01-01"
+      train_end: "2024-12-31"
+      test_start: "2025-01-01"
+      test_end:
     tiers:
       - tier1
       - tier2
-      - tier3
-      - tier5
-    pecnet_only_tiers:
-      - tier4
       - tier5
       - tier6
+      - tier7
+    pecnet_only_tiers:
+      - tier3
+      - tier4
+      - tier8
 
   walk_forward:
     training_prediction_count: 756    # target training prediction count per block
@@ -27,7 +33,7 @@ stock_close_machine_learning:
     aws_access_key_id: admin
     aws_secret_access_key: admin1234
     aws_default_region: us-east-1
-    experiment_name: stock_close_training
+    experiment_name: stock_close_training_2
     tier_experiment_prefix: stock_close
     request_timeout: 60
     request_max_retries: 1
@@ -77,6 +83,8 @@ stock_close_machine_learning:
         tier4: thesis_wavelet_error_compensated_fusion
         tier5: residual_correlation
         tier6: all_features
+        tier7: all_features
+        tier8: paper_pec_wnn
       correlation_threshold: 0.08
       force_include_best_if_first: true
       max_selected_features:
@@ -253,6 +261,29 @@ stock_close_machine_learning:
         normalization_type:
         target_normalization_type: window_mean
         conjoincy: false
+      tier7:
+        sampling_periods: [1, 5]
+        sampling_statistics: ["mean"]
+        sequence_size: 4
+        error_sequence_size: 8
+        wavelet_type: haar
+        scale_factor: 1.3
+        normalization_type:
+        target_normalization_type: window_mean
+        conjoincy: false
+      tier8:
+        sampling_periods: [1, 5]
+        sampling_statistics: ["mean"]
+        sequence_size: 4
+        error_sequence_size: 4
+        wavelet_type: haar
+        wavelet_level: 2
+        scale_factor: 1.3
+        normalization_type:
+        target_normalization_type: window_mean
+        conjoincy: false
+        paper_multi_timeframe: true
+        drop_first_wavelet_coefficient: false
     hyperparams:
       seed: 42
       learning_rate: 0.001
@@ -278,6 +309,26 @@ stock_close_machine_learning:
         epoch_size: 500
         batch_size: 96
         hidden_units_sizes: [32, 64, 32, 16]
+      tier7:
+        seed: 42
+        learning_rate: 0.001
+        epoch_size: 500
+        batch_size: 96
+        hidden_units_sizes: [32, 64, 32, 16]
+      tier8:
+        seed: 42
+        learning_rate: 0.05
+        epoch_size: 600
+        batch_size: 96
+        hidden_units_sizes: [1]
+        hidden_units_strategy: patterson
+        optimizer_name: sgd
+        momentum: 0.75
+        activation: relu
+        use_layer_norm: false
+        epoch_size_by_network_name:
+          Variable_: 600
+          ErrorNetwork: 300
 
   runtime:
     mlforecast_num_threads: -1
@@ -287,5 +338,5 @@ stock_close_machine_learning:
     pecnet_torch_device: auto
     pecnet_mps_fallback: true
     local_artifacts_enabled: true
-    local_artifact_dir: artifacts/stock_close_training
+    local_artifact_dir: outputs/artifacts/stock_close_training
     model_max_estimators: 300

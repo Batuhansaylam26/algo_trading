@@ -1,0 +1,9 @@
+from __future__ import annotations
+
+from .tier_metadata_class import StockCloseTierMetadata
+
+stock_close_tier_metadata = StockCloseTierMetadata()
+tier_definition = stock_close_tier_metadata.definition
+tier_mlflow_tags = stock_close_tier_metadata.mlflow_tags
+tier_run_note = stock_close_tier_metadata.run_note
+tier_context_payload = stock_close_tier_metadata.context_payload

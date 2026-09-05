@@ -11,6 +11,8 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
+from ..tier_metadata import tier_context_payload, tier_mlflow_tags, tier_run_note
+
 
 os.environ.setdefault("MLFLOW_HTTP_REQUEST_TIMEOUT", "60")
 os.environ.setdefault("MLFLOW_HTTP_REQUEST_MAX_RETRIES", "1")
@@ -135,6 +137,40 @@ class MlCommon:
             "then check `docker compose ps mlflow postgres-mlflow minio` and "
             "`docker logs mlflow_server --tail 120`."
         ) from last_error
+
+    @staticmethod
+    def log_stock_close_run_context(
+        *,
+        tier_name: str,
+        model_family: str,
+        train_df: pd.DataFrame | None = None,
+        test_df: pd.DataFrame | None = None,
+    ) -> None:
+        tags = tier_mlflow_tags(
+            tier_name=tier_name,
+            model_family=model_family,
+            train_df=train_df,
+            test_df=test_df,
+        )
+        mlflow.set_tags({key: str(value) for key, value in tags.items()})
+        mlflow.set_tag(
+            "mlflow.note.content",
+            tier_run_note(
+                tier_name=tier_name,
+                model_family=model_family,
+                train_df=train_df,
+                test_df=test_df,
+            ),
+        )
+        mlflow.log_dict(
+            tier_context_payload(
+                tier_name=tier_name,
+                model_family=model_family,
+                train_df=train_df,
+                test_df=test_df,
+            ),
+            "run_context/tier_context.json",
+        )
 
     @staticmethod
     def wait_for_mlflow_server(tracking_uri: str, *, timeout_seconds: int) -> None:

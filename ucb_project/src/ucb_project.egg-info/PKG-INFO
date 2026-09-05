@@ -1,0 +1,15 @@
+Metadata-Version: 2.4
+Name: ucb-project
+Version: 0.1.0
+Summary: Recency-aware UCB1-Tuned model selector for stock forecasting MLflow runs
+Requires-Python: >=3.10
+Requires-Dist: mlflow>=2.12
+Requires-Dist: gymnasium>=0.29
+Requires-Dist: numpy>=1.26
+Requires-Dist: pandas>=2.2
+Provides-Extra: api
+Requires-Dist: fastapi>=0.110; extra == "api"
+Requires-Dist: uvicorn[standard]>=0.29; extra == "api"
+Requires-Dist: torch>=2.2; extra == "api"
+Provides-Extra: torch
+Requires-Dist: torch>=2.2; extra == "torch"

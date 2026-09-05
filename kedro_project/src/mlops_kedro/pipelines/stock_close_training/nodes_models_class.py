@@ -201,10 +201,10 @@ class StockCloseModelNodes:
             mlforecast_params=mlforecast_params,
         )
         feature_columns_by_tier = pecnet_params.get("feature_columns_by_tier") or {}
-        feature_columns = feature_columns_by_tier.get(
-            tier_name,
-            _feature_columns_for_tier(columns_params, tier_name),
-        )
+        if tier_name in feature_columns_by_tier:
+            feature_columns = feature_columns_by_tier[tier_name]
+        else:
+            feature_columns = _feature_columns_for_tier(columns_params, tier_name)
         model_spec = self.pecnet.build_spec(
             enabled=_as_bool(pecnet_params.get("enabled"), True),
             test_horizon=_as_int(mlforecast_params.get("test_horizon"), 5),
@@ -263,6 +263,9 @@ class StockCloseModelNodes:
             "feature_selection_rows": len(feature_selection),
             "preprocessed_store_rows": result.get("preprocessed_store_rows", 0),
             "models": list(result.get("models", {}).keys()),
+            "updated_training": result.get("updated_training", False),
+            "update_rows": result.get("update_rows", 0),
+            "final_test_rows": result.get("final_test_rows", 0),
         }
         _log_step("train_pecnet_models", **metadata)
         return (

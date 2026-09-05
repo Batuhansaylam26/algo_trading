@@ -286,6 +286,36 @@ stock_close_tier5_train_test_split:
 stock_close_tier5_train_test_split_metadata:
   type: MemoryDataset
 
+stock_close_tier5_mlforecast_model_spec:
+  type: MemoryDataset
+
+stock_close_tier5_mlforecast_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier5_mlforecast_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier5_mlforecast_predictions:
+  type: MemoryDataset
+
+stock_close_tier5_mlforecast_training_metadata:
+  type: MemoryDataset
+
+stock_close_tier5_statsforecast_model_spec:
+  type: MemoryDataset
+
+stock_close_tier5_statsforecast_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier5_statsforecast_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier5_statsforecast_predictions:
+  type: MemoryDataset
+
+stock_close_tier5_statsforecast_training_metadata:
+  type: MemoryDataset
+
 stock_close_tier5_pecnet_model_spec:
   type: MemoryDataset
 
@@ -316,6 +346,36 @@ stock_close_tier6_train_test_split:
 stock_close_tier6_train_test_split_metadata:
   type: MemoryDataset
 
+stock_close_tier6_mlforecast_model_spec:
+  type: MemoryDataset
+
+stock_close_tier6_mlforecast_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier6_mlforecast_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier6_mlforecast_predictions:
+  type: MemoryDataset
+
+stock_close_tier6_mlforecast_training_metadata:
+  type: MemoryDataset
+
+stock_close_tier6_statsforecast_model_spec:
+  type: MemoryDataset
+
+stock_close_tier6_statsforecast_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier6_statsforecast_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier6_statsforecast_predictions:
+  type: MemoryDataset
+
+stock_close_tier6_statsforecast_training_metadata:
+  type: MemoryDataset
+
 stock_close_tier6_pecnet_model_spec:
   type: MemoryDataset
 
@@ -332,4 +392,94 @@ stock_close_tier6_pecnet_feature_selection:
   type: MemoryDataset
 
 stock_close_tier6_pecnet_training_metadata:
+  type: MemoryDataset
+
+stock_close_tier7_training_dataset:
+  type: MemoryDataset
+
+stock_close_tier7_training_dataset_metadata:
+  type: MemoryDataset
+
+stock_close_tier7_train_test_split:
+  type: MemoryDataset
+
+stock_close_tier7_train_test_split_metadata:
+  type: MemoryDataset
+
+stock_close_tier7_mlforecast_model_spec:
+  type: MemoryDataset
+
+stock_close_tier7_mlforecast_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier7_mlforecast_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier7_mlforecast_predictions:
+  type: MemoryDataset
+
+stock_close_tier7_mlforecast_training_metadata:
+  type: MemoryDataset
+
+stock_close_tier7_statsforecast_model_spec:
+  type: MemoryDataset
+
+stock_close_tier7_statsforecast_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier7_statsforecast_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier7_statsforecast_predictions:
+  type: MemoryDataset
+
+stock_close_tier7_statsforecast_training_metadata:
+  type: MemoryDataset
+
+stock_close_tier7_pecnet_model_spec:
+  type: MemoryDataset
+
+stock_close_tier7_pecnet_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier7_pecnet_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier7_pecnet_predictions:
+  type: MemoryDataset
+
+stock_close_tier7_pecnet_feature_selection:
+  type: MemoryDataset
+
+stock_close_tier7_pecnet_training_metadata:
+  type: MemoryDataset
+
+stock_close_tier8_training_dataset:
+  type: MemoryDataset
+
+stock_close_tier8_training_dataset_metadata:
+  type: MemoryDataset
+
+stock_close_tier8_train_test_split:
+  type: MemoryDataset
+
+stock_close_tier8_train_test_split_metadata:
+  type: MemoryDataset
+
+stock_close_tier8_pecnet_model_spec:
+  type: MemoryDataset
+
+stock_close_tier8_pecnet_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier8_pecnet_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier8_pecnet_predictions:
+  type: MemoryDataset
+
+stock_close_tier8_pecnet_feature_selection:
+  type: MemoryDataset
+
+stock_close_tier8_pecnet_training_metadata:
   type: MemoryDataset

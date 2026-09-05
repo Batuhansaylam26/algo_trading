@@ -16,6 +16,8 @@ TIER_3_FEATURE_COLUMNS = _COLUMNS["tier_3_features"]
 TIER_4_FEATURE_COLUMNS = _COLUMNS["tier_4_features"]
 TIER_5_FEATURE_COLUMNS = _COLUMNS["tier_5_features"]
 TIER_6_FEATURE_COLUMNS = _COLUMNS["tier_6_features"]
+TIER_7_FEATURE_COLUMNS = _COLUMNS["tier_7_features"]
+TIER_8_FEATURE_COLUMNS = _COLUMNS["tier_8_features"]
 MODEL_FEATURE_COLUMNS = _COLUMNS["model_features"]
 MODEL_TIER_FEATURE_COLUMNS = {
     "tier1": TIER_1_FEATURE_COLUMNS,
@@ -24,9 +26,11 @@ MODEL_TIER_FEATURE_COLUMNS = {
     "tier4": TIER_4_FEATURE_COLUMNS,
     "tier5": TIER_5_FEATURE_COLUMNS,
     "tier6": TIER_6_FEATURE_COLUMNS,
+    "tier7": TIER_7_FEATURE_COLUMNS,
+    "tier8": TIER_8_FEATURE_COLUMNS,
 }
-MODEL_TIER_NAMES = ("tier1", "tier2", "tier3")
-PECNET_ONLY_TIER_NAMES = ("tier4", "tier5", "tier6")
+MODEL_TIER_NAMES = ("tier1", "tier2", "tier5", "tier6", "tier7")
+PECNET_ONLY_TIER_NAMES = ("tier3", "tier4", "tier8")
 INDICATOR_COLUMNS = _COLUMNS["indicator"]
 CONDITION_COLUMNS = _COLUMNS["condition"]
 STRATEGY_LABEL_COLUMNS = _COLUMNS["strategy_label"]

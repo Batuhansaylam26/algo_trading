@@ -11,3 +11,13 @@ __pycache__/
 .DS_Store
 pecnetframework/
 algotrading_bot_research/
+
+.venv-1/
+.venv-trading/
+scripts/
+docker/
+.tmp_dagster_home_9ksozrb_/
+
+# Local export helpers
+notebooks/export_artifact_jsons_to_excel.ipynb
+artifacts/artifact_json_export.xlsx

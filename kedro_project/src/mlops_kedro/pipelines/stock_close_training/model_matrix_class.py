@@ -86,6 +86,7 @@ class StockCloseModelMatrix:
                 inputs=[
                     StockCloseModelMatrix._dataset(tier_name, "training_dataset"),
                     MLFORECAST,
+                    TRAINING,
                 ],
                 outputs=[
                     StockCloseModelMatrix._dataset(tier_name, "train_test_split"),
@@ -138,6 +139,7 @@ class StockCloseModelMatrix:
                 inputs=[
                     StockCloseModelMatrix._dataset(tier_name, "training_dataset"),
                     MLFORECAST,
+                    TRAINING,
                 ],
                 outputs=[
                     StockCloseModelMatrix._dataset(tier_name, "train_test_split"),

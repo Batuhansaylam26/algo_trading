@@ -11,7 +11,11 @@ import mlflow
 import pandas as pd
 import polars as pl
 
-from ...common import configure_mlflow_tracking, tier_experiment_name
+from ...common import (
+    configure_mlflow_tracking,
+    log_stock_close_run_context,
+    tier_experiment_name,
+)
 from ...runtime import cpu_count_from_env
 from ..runtime import (
     _configure_torch_threads,
@@ -53,6 +57,9 @@ class PecnetTrainingWorkflow:
             "models": outputs["models"],
             "train_rows": len(workflow_state["train_df"]),
             "test_rows": len(workflow_state["test_df"]),
+            "updated_training": workflow_state["updated_training_enabled"],
+            "update_rows": len(workflow_state["update_df"]),
+            "final_test_rows": len(workflow_state["final_test_df"]),
             "predictions": outputs["predictions"],
             "regression_metrics": outputs["regression_metrics"],
             "long_direction_metrics": outputs["long_direction_metrics"],
@@ -93,16 +100,48 @@ class PecnetTrainingWorkflow:
         train_test_split: dict[str, pd.DataFrame],
         model_spec: dict[str, Any],
     ) -> dict[str, Any]:
+        update_df = train_test_split.get("update", pd.DataFrame())
+        final_test_df = train_test_split.get("final_test", pd.DataFrame())
+        updated_training_enabled = not update_df.empty and not final_test_df.empty
+        train_df = (
+            PecnetTrainingWorkflow._combine_sorted_frames(
+                [train_test_split["train"], update_df]
+            )
+            if updated_training_enabled
+            else train_test_split["train"]
+        )
+        test_df = final_test_df if updated_training_enabled else train_test_split["test"]
         return {
             "full_df": train_test_split["full"],
-            "train_df": train_test_split["train"],
-            "test_df": train_test_split["test"],
+            "initial_train_df": train_test_split["train"],
+            "raw_test_df": train_test_split["test"],
+            "update_df": update_df,
+            "final_test_df": final_test_df,
+            "train_df": train_df,
+            "test_df": test_df,
             "feature_columns": model_spec["feature_columns"],
             "preprocess_params": model_spec["preprocess_params"],
             "hyperparams": model_spec["hyperparams"],
             "selection_params": model_spec.get("selection_params", {}),
             "tier_name": model_spec.get("tier_name", "tier1"),
+            "updated_training_config": train_test_split.get(
+                "updated_training_config",
+                {},
+            ),
+            "updated_training_enabled": updated_training_enabled,
         }
+
+    @staticmethod
+    def _combine_sorted_frames(frames: list[pd.DataFrame]) -> pd.DataFrame:
+        non_empty_frames = [frame for frame in frames if not frame.empty]
+        if not non_empty_frames:
+            return pd.DataFrame()
+        return (
+            pd.concat(non_empty_frames, ignore_index=True)
+            .sort_values(["unique_id", "ds"])
+            .drop_duplicates(subset=["unique_id", "ds"], keep="last")
+            .reset_index(drop=True)
+        )
 
     def _train_tickers(
         self,
@@ -237,6 +276,9 @@ class PecnetTrainingWorkflow:
             ticker_train_df = workflow_state["train_df"][
                 workflow_state["train_df"]["unique_id"] == ticker
             ].copy()
+            ticker_initial_train_df = workflow_state["initial_train_df"][
+                workflow_state["initial_train_df"]["unique_id"] == ticker
+            ].copy()
             ticker_test_df = workflow_state["test_df"][
                 workflow_state["test_df"]["unique_id"] == ticker
             ].copy()
@@ -248,13 +290,20 @@ class PecnetTrainingWorkflow:
                     "ticker": str(ticker),
                     "ticker_df": ticker_df.copy(),
                     "ticker_train_df": ticker_train_df,
+                    "ticker_initial_train_df": ticker_initial_train_df,
                     "ticker_test_df": ticker_test_df,
                     "feature_columns": workflow_state["feature_columns"],
                     "preprocess_params": workflow_state["preprocess_params"],
                     "hyperparams": workflow_state["hyperparams"],
                     "selection_params": workflow_state["selection_params"],
                     "tier_name": workflow_state["tier_name"],
-                    "test_horizon": model_spec["test_horizon"],
+                    "updated_training_config": workflow_state[
+                        "updated_training_config"
+                    ],
+                    "updated_training_enabled": workflow_state[
+                        "updated_training_enabled"
+                    ],
+                    "test_horizon": ticker_test_df["ds"].nunique(),
                     "mlflow_params": model_spec.get("_mlflow", {}),
                 }
             )
@@ -277,6 +326,12 @@ class PecnetTrainingWorkflow:
             run_context = nullcontext()
 
         with run_context:
+            log_stock_close_run_context(
+                tier_name=ticker_job["tier_name"],
+                model_family="pecnet",
+                train_df=ticker_job["ticker_train_df"],
+                test_df=ticker_job["ticker_test_df"],
+            )
             performance.log_ticker_metadata(
                 ticker=ticker_job["ticker"],
                 feature_columns=ticker_job["feature_columns"],
@@ -286,6 +341,30 @@ class PecnetTrainingWorkflow:
                 test_horizon=ticker_job["test_horizon"],
                 torch_thread_config=runtime["torch_thread_config"],
             )
+            if ticker_job.get("updated_training_enabled"):
+                ticker_safe = _safe_name(ticker_job["ticker"])
+                mlflow.log_params(
+                    {
+                        "pecnet.updated_training": True,
+                        "pecnet.updated_training.update_rows": len(
+                            ticker_job["ticker_train_df"]
+                        )
+                        - len(
+                            ticker_job.get(
+                                "ticker_initial_train_df",
+                                ticker_job["ticker_train_df"],
+                            )
+                        ),
+                        "pecnet.updated_training.final_test_rows": len(
+                            ticker_job["ticker_test_df"]
+                        ),
+                    }
+                )
+                mlflow.log_dict(
+                    ticker_job["updated_training_config"],
+                    f"pecnet/{ticker_job['tier_name']}/tickers/{ticker_safe}/params/"
+                    "updated_training.json",
+                )
             run_id = None
             active_run = mlflow.active_run()
             if active_run is not None:
@@ -311,6 +390,7 @@ class PecnetTrainingWorkflow:
                 pecnet_builder_cls=runtime["pecnet_builder_cls"],
                 basic_nn_cls=runtime["basic_nn_cls"],
                 feature_selector_cls=runtime["feature_selector_cls"],
+                data_preprocessor_cls=runtime["data_preprocessor_cls"],
                 torch_module=runtime["torch"],
                 tier_name=ticker_job["tier_name"],
                 selection_params=ticker_job["selection_params"],
@@ -321,6 +401,7 @@ class PecnetTrainingWorkflow:
             performance.log_ticker_results(
                 ticker=ticker_job["ticker"],
                 ticker_train_df=ticker_job["ticker_train_df"],
+                ticker_test_df=ticker_job["ticker_test_df"],
                 joined_df=joined_df,
                 regression_df=regression_df,
                 long_direction_df=long_direction_df,

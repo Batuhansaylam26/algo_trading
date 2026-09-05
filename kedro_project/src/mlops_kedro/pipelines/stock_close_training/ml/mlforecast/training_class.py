@@ -18,11 +18,13 @@ from mlforecast.utils import PredictionIntervals
 
 from ..common import (
     configure_mlflow_tracking,
+    log_stock_close_run_context,
     tier_experiment_name,
     validation_reference_frame,
 )
 from ..local_artifacts import LightweightArtifactStore
 from ..performance import ForecastPerformanceMeasurement
+from ..power_transformer_class import ForecastYeoJohnsonPowerTransformer
 from ..runtime import filter_sklearn_parallel_warnings
 from .data import make_train_test_split
 from .spec import _trial_logger, build_auto_mlforecast
@@ -67,6 +69,18 @@ class MLForecastTrainer:
         )
         train_df = train_test_split["train"]
         test_df = train_test_split["test"]
+        config.test_horizon = self._test_horizon_from_test_df(
+            test_df,
+            fallback=config.test_horizon,
+        )
+        test_df = self._align_test_df_to_horizon(test_df, config.test_horizon)
+        dynamic_feature_columns = self._dynamic_feature_columns(train_df)
+        power_transformer = ForecastYeoJohnsonPowerTransformer()
+        model_train_df, model_test_df = power_transformer.fit_transform_frames(
+            train_df=train_df,
+            test_df=test_df,
+            feature_columns=dynamic_feature_columns,
+        )
         auto_mlf = build_auto_mlforecast(freq=config.freq)
         model_names = (
             model_spec.get("models")
@@ -91,7 +105,12 @@ class MLForecastTrainer:
             run_name=f"stock-close-{config.tier_name}-automlforecast",
             nested=True,
         ):
-            dynamic_feature_columns = self._dynamic_feature_columns(train_df)
+            log_stock_close_run_context(
+                tier_name=config.tier_name,
+                model_family="mlforecast",
+                train_df=train_df,
+                test_df=test_df,
+            )
             evaluator = ForecastPerformanceMeasurement(
                 model_family="mlforecast",
                 tier_name=config.tier_name,
@@ -99,13 +118,17 @@ class MLForecastTrainer:
             )
             self._log_training_inputs(
                 config=config,
-                train_df=train_df,
-                test_df=test_df,
+                train_df=model_train_df,
+                test_df=model_test_df,
                 dynamic_feature_columns=dynamic_feature_columns,
                 evaluator=evaluator,
             )
+            power_transformer.log_artifacts(
+                model_family="mlforecast",
+                tier_name=config.tier_name,
+            )
             auto_mlf.fit(
-                df=train_df,
+                df=model_train_df,
                 n_windows=config.n_windows,
                 h=config.validation_horizon,
                 num_samples=config.n_trials,
@@ -124,10 +147,11 @@ class MLForecastTrainer:
             predictions = auto_mlf.predict(
                 **self._predict_kwargs(
                     config=config,
-                    test_df=test_df,
+                    test_df=model_test_df,
                     dynamic_feature_columns=dynamic_feature_columns,
                 )
             )
+            predictions = power_transformer.inverse_transform_predictions(predictions)
             result = evaluator.measure(
                 train_df=train_df,
                 test_df=test_df,
@@ -181,6 +205,25 @@ class MLForecastTrainer:
             for column in train_df.columns
             if column not in {"unique_id", "ds", "y"}
         ]
+
+    @staticmethod
+    def _test_horizon_from_test_df(test_df: pd.DataFrame, *, fallback: int) -> int:
+        if test_df.empty or "unique_id" not in test_df.columns:
+            return fallback
+
+        counts = test_df.groupby("unique_id", observed=True)["ds"].nunique()
+        if counts.empty:
+            return fallback
+        return max(1, int(counts.min()))
+
+    @staticmethod
+    def _align_test_df_to_horizon(test_df: pd.DataFrame, horizon: int) -> pd.DataFrame:
+        return (
+            test_df.sort_values(["unique_id", "ds"])
+            .groupby("unique_id", observed=True)
+            .head(horizon)
+            .reset_index(drop=True)
+        )
 
     @staticmethod
     def _log_training_inputs(

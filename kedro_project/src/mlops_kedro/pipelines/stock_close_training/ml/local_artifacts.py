@@ -20,7 +20,9 @@ class LightweightArtifactStore:
     enabled: bool | None = None
 
     def __post_init__(self) -> None:
-        self.root_dir = Path(self.root_dir or self._default_root_dir()).expanduser()
+        self.root_dir = self._resolve_root_dir(
+            self.root_dir or self._default_root_dir()
+        ).expanduser()
         if self.enabled is None:
             self.enabled = self._env_bool("LOCAL_ARTIFACTS_ENABLED", True)
 
@@ -83,13 +85,31 @@ class LightweightArtifactStore:
             "PROJECT_LOCAL_ARTIFACT_DIR",
         )
         if configured:
-            return Path(configured)
+            return LightweightArtifactStore._resolve_root_dir(configured)
 
+        return (
+            LightweightArtifactStore._project_root()
+            / "outputs"
+            / "artifacts"
+            / "stock_close_training"
+        )
+
+    @staticmethod
+    def _resolve_root_dir(path: Path | str) -> Path:
+        root_dir = Path(path).expanduser()
+        if root_dir.is_absolute():
+            return root_dir
+        return LightweightArtifactStore._project_root() / root_dir
+
+    @staticmethod
+    def _project_root() -> Path:
         cwd = Path.cwd().resolve()
+        if cwd.name == "kedro_project":
+            return cwd.parent
         for candidate in [cwd, *cwd.parents]:
             if (candidate / "kedro_project").exists():
-                return candidate / "artifacts" / "stock_close_training"
-        return cwd / "artifacts" / "stock_close_training"
+                return candidate
+        return cwd
 
     @staticmethod
     def _env_bool(name: str, default: bool) -> bool:

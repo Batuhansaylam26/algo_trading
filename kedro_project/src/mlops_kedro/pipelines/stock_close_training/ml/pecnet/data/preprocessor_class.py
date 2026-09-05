@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import logging
+from pathlib import Path
+import tempfile
 from typing import Any
 
 import numpy as np
@@ -9,6 +12,9 @@ import polars as pl
 
 from ...common import log_mlflow_datasets
 from ..runtime import _safe_name, _ticker_test_ratio
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(slots=True)
@@ -30,6 +36,8 @@ class PecnetDataPreprocessor:
     ) -> tuple[dict[str, Any], dict[str, object], pd.DataFrame]:
         ticker_data = PecnetDataPreprocessor._preprocess_ticker(
             ticker_df=ticker_df,
+            ticker_train_df=ticker_train_df,
+            ticker_test_df=ticker_test_df,
             ticker=str(ticker),
             feature_columns=feature_columns,
             preprocess_params=preprocess_params,
@@ -66,6 +74,8 @@ class PecnetDataPreprocessor:
     def _preprocess_ticker(
         *,
         ticker_df: pd.DataFrame,
+        ticker_train_df: pd.DataFrame,
+        ticker_test_df: pd.DataFrame,
         ticker: str,
         feature_columns: list[str],
         preprocess_params: dict[str, Any],
@@ -75,8 +85,23 @@ class PecnetDataPreprocessor:
         dp = data_preprocessor_cls()
         dp.reset()
 
-        ticker_df = ticker_df.sort_values("ds").copy()
-        test_ratio = _ticker_test_ratio(len(ticker_df), test_horizon)
+        if not ticker_train_df.empty and not ticker_test_df.empty:
+            ticker_df = pd.concat(
+                [ticker_train_df, ticker_test_df],
+                ignore_index=True,
+            )
+        ticker_df = (
+            ticker_df.sort_values("ds")
+            .drop_duplicates(subset=["unique_id", "ds"], keep="last")
+            .reset_index(drop=True)
+            .copy()
+        )
+        test_ratio = PecnetDataPreprocessor._preprocessor_test_ratio(
+            row_count=len(ticker_df),
+            test_row_count=len(ticker_test_df),
+            test_horizon=test_horizon,
+            preprocess_params=preprocess_params,
+        )
         params = {
             **preprocess_params,
             "test_ratio": test_ratio,
@@ -89,6 +114,18 @@ class PecnetDataPreprocessor:
             fit=True,
             **params,
         )
+        preprocessor_artifacts = []
+        target_artifact = PecnetDataPreprocessor._log_fitted_preprocessor_artifact(
+            preprocessor=dp,
+            tier_name=tier_name,
+            ticker=ticker,
+            variable_name="target",
+            variable_kind="target",
+            profile="target",
+            row_count=len(target_series),
+        )
+        if target_artifact:
+            preprocessor_artifacts.append(target_artifact)
 
         feature_X_trains = []
         feature_X_tests = []
@@ -104,6 +141,36 @@ class PecnetDataPreprocessor:
             )
             feature_X_trains.append(X_train_feature)
             feature_X_tests.append(X_test_feature)
+            feature_artifact = PecnetDataPreprocessor._log_fitted_preprocessor_artifact(
+                preprocessor=dp,
+                tier_name=tier_name,
+                ticker=ticker,
+                variable_name=column,
+                variable_kind="features",
+                profile=f"feature:{column}",
+                row_count=len(ticker_df[column]),
+            )
+            if feature_artifact:
+                preprocessor_artifacts.append(feature_artifact)
+
+        combined_artifact = PecnetDataPreprocessor._log_fitted_preprocessor_artifact(
+            preprocessor=dp,
+            tier_name=tier_name,
+            ticker=ticker,
+            variable_name="combined",
+            variable_kind="combined",
+            profile="all_profiles",
+            row_count=len(ticker_df),
+        )
+        if combined_artifact:
+            preprocessor_artifacts.append(combined_artifact)
+        PecnetDataPreprocessor._log_preprocessor_manifest(
+            tier_name=tier_name,
+            ticker=ticker,
+            preprocessor_artifacts=preprocessor_artifacts,
+            feature_columns=available_feature_columns,
+            preprocess_params=params,
+        )
 
         return {
             "ticker": ticker,
@@ -118,7 +185,130 @@ class PecnetDataPreprocessor:
             "feature_names": available_feature_columns,
             "preprocess_params": params,
             "test_ratio": test_ratio,
+            "preprocessor_artifacts": preprocessor_artifacts,
         }
+
+    @staticmethod
+    def _log_fitted_preprocessor_artifact(
+        *,
+        preprocessor,
+        tier_name: str,
+        ticker: str,
+        variable_name: str,
+        variable_kind: str,
+        profile: str,
+        row_count: int,
+    ) -> dict[str, Any] | None:
+        try:
+            import joblib  # noqa: PLC0415
+            import mlflow  # noqa: PLC0415
+        except ImportError as exc:
+            LOGGER.warning("Skipping PECNet preprocessor logging: %s", exc)
+            return None
+
+        if mlflow.active_run() is None:
+            return None
+
+        tier_safe = _safe_name(str(tier_name))
+        ticker_safe = _safe_name(str(ticker))
+        variable_safe = _safe_name(str(variable_name))
+        artifact_dir = (
+            f"pecnet/{tier_safe}/tickers/{ticker_safe}/preprocessors/{variable_kind}"
+        )
+        filename = f"{variable_safe}.joblib"
+        artifact_uri = f"{artifact_dir}/{filename}"
+        metadata = {
+            "tier": tier_name,
+            "ticker": str(ticker),
+            "variable_name": str(variable_name),
+            "variable_kind": variable_kind,
+            "profile": profile,
+            "row_count": int(row_count),
+            "preprocessor_class": type(preprocessor).__name__,
+            "artifact_path": artifact_uri,
+            "logged": False,
+        }
+
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                path = Path(tmpdir) / filename
+                joblib.dump(preprocessor, path, compress=3)
+                mlflow.log_artifact(str(path), artifact_path=artifact_dir)
+        except Exception as exc:  # noqa: BLE001
+            metadata["error"] = str(exc)
+            LOGGER.warning(
+                "Failed to log PECNet preprocessor artifact | tier=%s ticker=%s "
+                "variable=%s",
+                tier_name,
+                ticker,
+                variable_name,
+                exc_info=True,
+            )
+            return metadata
+
+        metadata["logged"] = True
+        return metadata
+
+    @staticmethod
+    def _log_preprocessor_manifest(
+        *,
+        tier_name: str,
+        ticker: str,
+        preprocessor_artifacts: list[dict[str, Any]],
+        feature_columns: list[str],
+        preprocess_params: dict[str, Any],
+    ) -> None:
+        if not preprocessor_artifacts:
+            return
+
+        try:
+            import mlflow  # noqa: PLC0415
+        except ImportError:
+            return
+
+        if mlflow.active_run() is None:
+            return
+
+        ticker_safe = _safe_name(str(ticker))
+        mlflow.log_dict(
+            {
+                "tier": tier_name,
+                "ticker": str(ticker),
+                "feature_columns": feature_columns,
+                "preprocess_params": preprocess_params,
+                "preprocessors": preprocessor_artifacts,
+            },
+            f"pecnet/{tier_name}/tickers/{ticker_safe}/preprocessors/manifest.json",
+        )
+
+    @staticmethod
+    def _preprocessor_test_ratio(
+        *,
+        row_count: int,
+        test_row_count: int,
+        test_horizon: int,
+        preprocess_params: dict[str, Any],
+    ) -> float:
+        explicit_ratio = preprocess_params.get("test_ratio")
+        if explicit_ratio is not None:
+            return float(explicit_ratio)
+
+        if test_row_count <= 0:
+            return _ticker_test_ratio(row_count, test_horizon)
+
+        sampling_periods = preprocess_params.get("sampling_periods") or [1, 4]
+        sequence_size = int(preprocess_params.get("sequence_size", 4))
+        conjoincy = bool(preprocess_params.get("conjoincy", False))
+        stride = preprocess_params.get("stride")
+        stride_val = int(stride) if stride and int(stride) > 1 else 1
+        biggest_period = max(sampling_periods)
+        required_timestamps = (
+            biggest_period + sequence_size - 1
+            if conjoincy
+            else biggest_period * sequence_size
+        )
+        data_trimmed = max(row_count - required_timestamps + stride_val, 1)
+        return min(max(test_row_count / data_trimmed, 0.01), 0.95)
 
     @staticmethod
     def _as_2d_float_array(values: Any) -> np.ndarray:

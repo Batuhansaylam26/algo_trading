@@ -1,0 +1,3 @@
+[console_scripts]
+ucb-debug = ucb_project.debug:main
+ucb-select = ucb_project.cli:main

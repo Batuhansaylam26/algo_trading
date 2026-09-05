@@ -6,10 +6,9 @@ import pandas as pd
 import polars as pl
 
 from .feature_engineering_oop import StockCloseFeatureEngineering
-from .ml.mlforecast import make_train_test_split
+from .ml.mlforecast import to_mlforecast_frame
 from .node_utils import (
     _as_bool,
-    _as_int,
     _bucket,
     _columns,
     _feature_columns_for_tier,
@@ -20,6 +19,13 @@ from .serving import FeatureStoreService
 
 
 class StockCloseDataNodes:
+    DEFAULT_DATE_SPLIT_CONFIG = {
+        "train_start": "2019-01-01",
+        "train_end": "2024-12-31",
+        "test_start": "2025-01-01",
+        "test_end": None,
+    }
+
     def __init__(self, feature_store: FeatureStoreService | None = None) -> None:
         self.feature_store = feature_store or FeatureStoreService()
 
@@ -311,20 +317,170 @@ class StockCloseDataNodes:
         self,
         stock_close_training_dataset: pl.DataFrame,
         mlforecast_params: dict[str, Any] | None,
+        training_params: dict[str, Any] | None = None,
         *,
         tier_name: str,
     ) -> tuple[dict[str, pd.DataFrame], dict[str, Any]]:
-        mlforecast_params = mlforecast_params or {}
-        test_horizon = _as_int(mlforecast_params.get("test_horizon"), 5)
-        split = make_train_test_split(
+        _ = mlforecast_params
+        training_params = training_params or {}
+        date_split_config = self._date_split_config(training_params, tier_name)
+        updated_training_config = (
+            training_params.get("updated_training_by_tier") or {}
+        ).get(tier_name)
+        split = self._make_date_train_test_split(
             stock_close_training_dataset,
-            test_horizon=test_horizon,
+            date_split_config,
         )
+        if updated_training_config:
+            split = self._with_updated_training_split(
+                split,
+                updated_training_config,
+            )
         metadata = {
             "tier": tier_name,
             "train_rows": len(split["train"]),
             "test_rows": len(split["test"]),
-            "test_horizon": test_horizon,
+            "split_strategy": "date_range",
         }
+        metadata.update(
+            {
+                "train_start": date_split_config.get("train_start"),
+                "train_end": date_split_config.get("train_end"),
+                "test_start": date_split_config.get("test_start"),
+                "test_end": date_split_config.get("test_end") or "latest",
+                "actual_train_start": self._min_ds(split["train"]),
+                "actual_train_end": self._max_ds(split["train"]),
+                "actual_test_start": self._min_ds(split["test"]),
+                "actual_test_end": self._max_ds(split["test"]),
+            }
+        )
+        if "update" in split and "final_test" in split:
+            metadata.update(
+                {
+                    "updated_training": True,
+                    "update_rows": len(split["update"]),
+                    "final_test_rows": len(split["final_test"]),
+                    "update_start": updated_training_config.get("update_start"),
+                    "update_end": updated_training_config.get("update_end"),
+                    "final_test_start": updated_training_config.get(
+                        "final_test_start"
+                    ),
+                    "final_test_end": updated_training_config.get("final_test_end")
+                    or "latest",
+                    "actual_update_start": self._min_ds(split["update"]),
+                    "actual_update_end": self._max_ds(split["update"]),
+                    "actual_final_test_start": self._min_ds(split["final_test"]),
+                    "actual_final_test_end": self._max_ds(split["final_test"]),
+                }
+            )
         _log_step(f"{tier_name}_train_test_split", **metadata)
         return split, metadata
+
+    @staticmethod
+    def _date_split_config(
+        training_params: dict[str, Any],
+        tier_name: str,
+    ) -> dict[str, Any]:
+        base_split = {
+            **StockCloseDataNodes.DEFAULT_DATE_SPLIT_CONFIG,
+            **(training_params.get("date_split") or {}),
+        }
+        tier_override = (training_params.get("date_splits_by_tier") or {}).get(
+            tier_name,
+            {},
+        )
+        return {**base_split, **tier_override}
+
+    @staticmethod
+    def _make_date_train_test_split(
+        dataset: pl.DataFrame,
+        split_config: dict[str, Any],
+    ) -> dict[str, pd.DataFrame]:
+        model_df = to_mlforecast_frame(dataset)
+        ordered = model_df.sort_values(["unique_id", "ds"]).reset_index(drop=True)
+        ds = pd.to_datetime(ordered["ds"], utc=True).dt.tz_convert(None)
+        train_mask = StockCloseDataNodes._date_range_mask(
+            ds,
+            start=split_config.get("train_start"),
+            end=split_config.get("train_end"),
+        )
+        test_mask = StockCloseDataNodes._date_range_mask(
+            ds,
+            start=split_config.get("test_start"),
+            end=split_config.get("test_end"),
+        )
+        train_df = ordered.loc[train_mask].copy()
+        test_df = ordered.loc[test_mask].copy()
+        if train_df.empty or test_df.empty:
+            raise ValueError(
+                "Date-based train/test split produced an empty frame. "
+                f"train_rows={len(train_df)} test_rows={len(test_df)} "
+                f"split_config={split_config!r}"
+            )
+        return {
+            "full": ordered,
+            "train": train_df,
+            "test": test_df,
+        }
+
+    @staticmethod
+    def _with_updated_training_split(
+        split: dict[str, pd.DataFrame],
+        updated_training_config: dict[str, Any],
+    ) -> dict[str, pd.DataFrame]:
+        if not _as_bool(updated_training_config.get("enabled"), True):
+            return split
+
+        test_df = split["test"].sort_values(["unique_id", "ds"]).reset_index(drop=True)
+        ds = pd.to_datetime(test_df["ds"], utc=True).dt.tz_convert(None)
+        update_mask = StockCloseDataNodes._date_range_mask(
+            ds,
+            start=updated_training_config.get("update_start"),
+            end=updated_training_config.get("update_end"),
+        )
+        final_test_mask = StockCloseDataNodes._date_range_mask(
+            ds,
+            start=updated_training_config.get("final_test_start"),
+            end=updated_training_config.get("final_test_end"),
+        )
+        update_df = test_df.loc[update_mask].copy()
+        final_test_df = test_df.loc[final_test_mask].copy()
+        if update_df.empty or final_test_df.empty:
+            raise ValueError(
+                "Updated-training split produced an empty frame. "
+                f"update_rows={len(update_df)} final_test_rows={len(final_test_df)} "
+                f"updated_training_config={updated_training_config!r}"
+            )
+
+        return {
+            **split,
+            "update": update_df,
+            "final_test": final_test_df,
+            "updated_training_config": updated_training_config,
+        }
+
+    @staticmethod
+    def _date_range_mask(
+        ds: pd.Series,
+        *,
+        start: Any,
+        end: Any,
+    ) -> pd.Series:
+        mask = pd.Series(True, index=ds.index)
+        if start not in (None, ""):
+            mask &= ds >= pd.Timestamp(start)
+        if end not in (None, ""):
+            mask &= ds <= pd.Timestamp(end)
+        return mask
+
+    @staticmethod
+    def _min_ds(df: pd.DataFrame) -> str | None:
+        if df.empty:
+            return None
+        return str(pd.to_datetime(df["ds"]).min())
+
+    @staticmethod
+    def _max_ds(df: pd.DataFrame) -> str | None:
+        if df.empty:
+            return None
+        return str(pd.to_datetime(df["ds"]).max())

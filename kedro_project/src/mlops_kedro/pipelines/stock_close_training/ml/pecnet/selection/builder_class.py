@@ -111,6 +111,59 @@ class PecnetSelectionBuilder:
         return builder, candidate_X_test, pd.DataFrame(rows)
 
     @staticmethod
+    def _build_paper_pec_wnn_variables(
+        *,
+        builder,
+        ticker_data: dict[str, Any],
+        tier_name: str,
+    ) -> tuple[Any, list[np.ndarray], pd.DataFrame]:
+        candidate_names, _, candidate_X_test = PecnetSelectionBuilder._candidate_variable_inputs(ticker_data)
+        builder.add_variable_network(
+            ticker_data["X_train_target"],
+            ticker_data["y_train"],
+        )
+        rows = [
+            PecnetSelectionBuilder._selection_row(
+                ticker=ticker_data["ticker"],
+                tier_name=tier_name,
+                strategy="paper_pec_wnn",
+                order=1,
+                feature_index=0,
+                feature_name=candidate_names[0],
+                correlation=None,
+                reference_name="target_y",
+                threshold=None,
+            )
+        ]
+        for feature_order, (feature_name, X_train_feature) in enumerate(
+            zip(
+                ticker_data["feature_names"],
+                ticker_data["feature_X_trains"],
+                strict=False,
+            ),
+            start=2,
+        ):
+            builder.add_variable_network(
+                X_train_feature,
+                builder.pecnet.get_target_values_for_current_variable_network(),
+            )
+            rows.append(
+                PecnetSelectionBuilder._selection_row(
+                    ticker=ticker_data["ticker"],
+                    tier_name=tier_name,
+                    strategy="paper_pec_wnn",
+                    order=feature_order,
+                    feature_index=feature_order - 1,
+                    feature_name=feature_name,
+                    correlation=None,
+                    reference_name="residual_error",
+                    threshold=None,
+                )
+            )
+
+        return builder, candidate_X_test, pd.DataFrame(rows)
+
+    @staticmethod
     def _build_feature_selector_pecnet_variables(
         *,
         builder,
@@ -244,6 +297,13 @@ class PecnetSelectionBuilder:
                 tier_name=tier_name,
                 feature_selector_cls=feature_selector_cls,
                 selection_params=selection_params,
+            )
+
+        if strategy == "paper_pec_wnn":
+            return PecnetSelectionBuilder._build_paper_pec_wnn_variables(
+                builder=builder,
+                ticker_data=ticker_data,
+                tier_name=tier_name,
             )
 
         return PecnetSelectionBuilder._build_all_feature_pecnet_variables(

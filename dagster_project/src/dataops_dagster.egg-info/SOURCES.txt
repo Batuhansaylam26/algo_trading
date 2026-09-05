@@ -1,6 +1,8 @@
 pyproject.toml
 src/dataops_dagster/__init__.py
+src/dataops_dagster/definitions 2.py
 src/dataops_dagster/definitions.py
+src/dataops_dagster/definitions_class.py
 src/dataops_dagster/utils.py
 src/dataops_dagster.egg-info/PKG-INFO
 src/dataops_dagster.egg-info/SOURCES.txt
@@ -8,6 +10,12 @@ src/dataops_dagster.egg-info/dependency_links.txt
 src/dataops_dagster.egg-info/requires.txt
 src/dataops_dagster.egg-info/top_level.txt
 src/dataops_dagster/defs/__init__.py
+src/dataops_dagster/defs/bronze 2.py
 src/dataops_dagster/defs/bronze.py
+src/dataops_dagster/defs/bronze_class.py
+src/dataops_dagster/defs/dbt_assets 2.py
 src/dataops_dagster/defs/dbt_assets.py
+src/dataops_dagster/defs/dbt_assets_class.py
+src/dataops_dagster/defs/silver 2.py
 src/dataops_dagster/defs/silver.py
+src/dataops_dagster/defs/silver_class.py

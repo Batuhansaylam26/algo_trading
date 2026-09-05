@@ -102,6 +102,7 @@ class PecnetPerformanceMeasurement:
         *,
         ticker: str,
         ticker_train_df: pd.DataFrame,
+        ticker_test_df: pd.DataFrame,
         joined_df: pd.DataFrame,
         regression_df: pd.DataFrame,
         long_direction_df: pd.DataFrame,
@@ -113,6 +114,7 @@ class PecnetPerformanceMeasurement:
             ticker=ticker,
             tier_name=self.tier_name,
             ticker_train_df=ticker_train_df,
+            ticker_test_df=ticker_test_df,
             joined_df=joined_df,
             regression_df=regression_df,
             long_direction_df=long_direction_df,
@@ -120,11 +122,6 @@ class PecnetPerformanceMeasurement:
             pecnet=pecnet,
             torch_module=torch_module,
         )
-
-
-
-
-
 
     @staticmethod
     def log_ticker_run_metadata(
@@ -215,6 +212,7 @@ class PecnetPerformanceMeasurement:
         ticker: str,
         tier_name: str,
         ticker_train_df: pd.DataFrame,
+        ticker_test_df: pd.DataFrame,
         joined_df: pd.DataFrame,
         regression_df: pd.DataFrame,
         long_direction_df: pd.DataFrame,
@@ -257,9 +255,13 @@ class PecnetPerformanceMeasurement:
             long_direction_df=long_direction_df,
             ticker_safe=ticker_safe,
         )
+        plot_joined_df = PecnetPerformanceMeasurement._forecast_plot_frame(
+            ticker_test_df=ticker_test_df,
+            joined_df=joined_df,
+        )
         log_forecast_plots(
             train_df=ticker_train_df,
-            joined_df=joined_df,
+            joined_df=plot_joined_df,
             levels=None,
             artifact_prefix=f"pecnet/{tier_name}/plots/{ticker_safe}",
         )
@@ -268,4 +270,40 @@ class PecnetPerformanceMeasurement:
             torch_module=torch_module,
             tier_name=tier_name,
             ticker_safe=ticker_safe,
+        )
+
+    @staticmethod
+    def _forecast_plot_frame(
+        *,
+        ticker_test_df: pd.DataFrame,
+        joined_df: pd.DataFrame,
+    ) -> pd.DataFrame:
+        if ticker_test_df.empty or joined_df.empty:
+            return joined_df
+
+        prediction_columns = [
+            column
+            for column in joined_df.columns
+            if column not in {"unique_id", "ds", "y"}
+        ]
+        if not prediction_columns:
+            return joined_df
+
+        test_actuals = (
+            ticker_test_df[["unique_id", "ds", "y"]]
+            .sort_values(["unique_id", "ds"])
+            .drop_duplicates(subset=["unique_id", "ds"], keep="last")
+            .copy()
+        )
+        predictions = (
+            joined_df[["unique_id", "ds", *prediction_columns]]
+            .sort_values(["unique_id", "ds"])
+            .drop_duplicates(subset=["unique_id", "ds"], keep="last")
+            .copy()
+        )
+        return test_actuals.merge(
+            predictions,
+            on=["unique_id", "ds"],
+            how="left",
+            validate="one_to_one",
         )

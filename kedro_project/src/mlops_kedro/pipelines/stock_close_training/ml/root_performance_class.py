@@ -17,6 +17,7 @@ from .common import (
     _regression_metrics_by_unique_id,
     configure_mlflow_tracking,
     log_mlflow_datasets,
+    log_stock_close_run_context,
     tier_experiment_name,
 )
 from ..features.feature_sets import MODEL_TIER_NAMES, PECNET_ONLY_TIER_NAMES
@@ -51,6 +52,10 @@ class RootModelPerformanceEvaluator:
         )
 
         with mlflow.start_run(run_name="stock-close-root-performance") as run:
+            log_stock_close_run_context(
+                tier_name="all_tiers",
+                model_family="root_performance",
+            )
             self._log_split_inputs(inputs, split_metadata)
             self._log_tables(
                 predictions=predictions,
@@ -93,6 +98,10 @@ class RootModelPerformanceEvaluator:
         )
 
         with mlflow.start_run(run_name="stock-close-root-performance-from-mlflow") as run:
+            log_stock_close_run_context(
+                tier_name="all_tiers",
+                model_family="root_performance_from_mlflow",
+            )
             self._log_tables(
                 predictions=predictions,
                 regression_metrics=regression_metrics,

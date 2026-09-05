@@ -10,6 +10,7 @@ model_id_columns = ml_common.model_id_columns
 non_feature_columns = ml_common.non_feature_columns
 tier_experiment_name = ml_common.tier_experiment_name
 configure_mlflow_tracking = ml_common.configure_mlflow_tracking
+log_stock_close_run_context = ml_common.log_stock_close_run_context
 wait_for_mlflow_server = ml_common.wait_for_mlflow_server
 split_train_test_by_horizon = ml_common.split_train_test_by_horizon
 validation_reference_frame = ml_common.validation_reference_frame

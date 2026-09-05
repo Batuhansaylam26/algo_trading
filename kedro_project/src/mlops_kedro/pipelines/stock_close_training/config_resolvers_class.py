@@ -172,6 +172,18 @@ class StockCloseConfigResolver:
                 ],
             )
         )
+        tier_7_feature_columns = list(
+            columns.get(
+                "tier_7_features",
+                model_time_feature_columns,
+            )
+        )
+        tier_8_feature_columns = list(
+            columns.get(
+                "tier_8_features",
+                model_time_feature_columns,
+            )
+        )
         model_feature_columns = StockCloseConfigResolver._ordered_unique(
             list(
                 columns.get(
@@ -183,6 +195,8 @@ class StockCloseConfigResolver:
                         *tier_4_feature_columns,
                         *tier_5_feature_columns,
                         *tier_6_feature_columns,
+                        *tier_7_feature_columns,
+                        *tier_8_feature_columns,
                     ],
                 )
             )
@@ -232,6 +246,8 @@ class StockCloseConfigResolver:
             "tier_4_features": tier_4_feature_columns,
             "tier_5_features": tier_5_feature_columns,
             "tier_6_features": tier_6_feature_columns,
+            "tier_7_features": tier_7_feature_columns,
+            "tier_8_features": tier_8_feature_columns,
             "model_features": model_feature_columns,
             "fourier_time_encoding": StockCloseConfigResolver.configured_list(columns, "fourier_time_encoding"),
             "daily_lookback_features": daily_lookback_feature_columns,

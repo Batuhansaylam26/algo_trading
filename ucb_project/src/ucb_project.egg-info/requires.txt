@@ -1,0 +1,12 @@
+mlflow>=2.12
+gymnasium>=0.29
+numpy>=1.26
+pandas>=2.2
+
+[api]
+fastapi>=0.110
+uvicorn[standard]>=0.29
+torch>=2.2
+
+[torch]
+torch>=2.2

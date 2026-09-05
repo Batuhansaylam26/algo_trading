@@ -46,6 +46,30 @@ class StockCloseNodeUtils:
         return value.replace("host.docker.internal", "127.0.0.1")
 
     @staticmethod
+    def _project_root() -> Path:
+        cwd = Path.cwd().resolve()
+        if cwd.name == "kedro_project":
+            return cwd.parent
+        for candidate in [cwd, *cwd.parents]:
+            if (candidate / "kedro_project").exists():
+                return candidate
+        return cwd
+
+    @staticmethod
+    def _local_artifact_dir(runtime_params: dict[str, Any]) -> str:
+        configured = runtime_params.get(
+            "local_artifact_dir",
+            os.environ.get(
+                "LOCAL_ARTIFACT_DIR",
+                "outputs/artifacts/stock_close_training",
+            ),
+        )
+        artifact_dir = Path(str(configured)).expanduser()
+        if artifact_dir.is_absolute():
+            return str(artifact_dir)
+        return str(StockCloseNodeUtils._project_root() / artifact_dir)
+
+    @staticmethod
     def _bucket(delta_lake_params: dict[str, Any] | None) -> str:
         return (delta_lake_params or {}).get("bucket", "delta-lake-bucket")
 
@@ -142,14 +166,8 @@ class StockCloseNodeUtils:
         os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = (
             "1" if StockCloseNodeUtils._as_bool(runtime_params.get("pecnet_mps_fallback"), True) else "0"
         )
-        os.environ["LOCAL_ARTIFACT_DIR"] = str(
-            runtime_params.get(
-                "local_artifact_dir",
-                os.environ.get(
-                    "LOCAL_ARTIFACT_DIR",
-                    "/workspaces/yahooquery_lakehouse_revamp/artifacts/stock_close_training",
-                ),
-            )
+        os.environ["LOCAL_ARTIFACT_DIR"] = StockCloseNodeUtils._local_artifact_dir(
+            runtime_params,
         )
         os.environ["LOCAL_ARTIFACTS_ENABLED"] = (
             "1" if StockCloseNodeUtils._as_bool(runtime_params.get("local_artifacts_enabled"), True) else "0"
