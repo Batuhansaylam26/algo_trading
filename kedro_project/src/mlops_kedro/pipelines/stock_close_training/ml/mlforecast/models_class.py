@@ -150,5 +150,14 @@ class MLForecastModelFactory:
         return {"lags": lags_map[lags_name]}
 
     @staticmethod
+    def fixed_init_config(lags: list[int]):
+        resolved_lags = [int(lag) for lag in lags]
+
+        def _config(_: optuna.Trial) -> dict:
+            return {"lags": resolved_lags}
+
+        return _config
+
+    @staticmethod
     def fit_config(trial: optuna.Trial) -> dict:
         return {"static_features": []}

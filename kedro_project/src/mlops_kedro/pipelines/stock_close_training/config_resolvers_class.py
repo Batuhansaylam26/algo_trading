@@ -95,6 +95,7 @@ DEFAULT_COLUMN_CONFIG: dict[str, list[str]] = {
         for lag in range(1, 5)
         for column in ["open", "high", "low", "close", "volume"]
     ],
+    "market_index_features": ["market_index_prev_close"],
 }
 
 
@@ -136,6 +137,10 @@ class StockCloseConfigResolver:
             columns,
             "weekly_lookback_features",
         )
+        market_index_feature_columns = StockCloseConfigResolver.configured_list(
+            columns,
+            "market_index_features",
+        )
         tier_2_feature_columns = list(
             columns.get(
                 "tier_2_features",
@@ -158,6 +163,8 @@ class StockCloseConfigResolver:
             columns.get(
                 "tier_5_features",
                 [
+                    *tier_1_feature_columns,
+                    *model_time_feature_columns,
                     *daily_lookback_feature_columns,
                     *weekly_lookback_feature_columns,
                 ],
@@ -181,7 +188,7 @@ class StockCloseConfigResolver:
         tier_8_feature_columns = list(
             columns.get(
                 "tier_8_features",
-                model_time_feature_columns,
+                [*model_time_feature_columns, *market_index_feature_columns],
             )
         )
         model_feature_columns = StockCloseConfigResolver._ordered_unique(
@@ -252,6 +259,7 @@ class StockCloseConfigResolver:
             "fourier_time_encoding": StockCloseConfigResolver.configured_list(columns, "fourier_time_encoding"),
             "daily_lookback_features": daily_lookback_feature_columns,
             "weekly_lookback_features": weekly_lookback_feature_columns,
+            "market_index_features": market_index_feature_columns,
             "model_time_features": model_time_feature_columns,
             "indicator": indicator_columns,
             "condition": condition_columns,

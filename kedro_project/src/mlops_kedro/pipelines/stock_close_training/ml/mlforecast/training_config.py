@@ -8,6 +8,7 @@ from typing import Any
 class MLForecastTrainingConfig:
     tier_name: str = "tier1"
     freq: str = "B"
+    lags: list[int] | None = None
     validation_horizon: int = 1
     test_horizon: int = 5
     n_windows: int = 3
@@ -31,6 +32,7 @@ class MLForecastTrainingConfig:
         if not model_spec:
             return cls(
                 freq=freq,
+                lags=None,
                 validation_horizon=validation_horizon,
                 test_horizon=test_horizon,
                 n_windows=n_windows,
@@ -42,6 +44,7 @@ class MLForecastTrainingConfig:
         return cls(
             tier_name=model_spec.get("tier_name", "tier1"),
             freq=model_spec.get("freq", freq),
+            lags=model_spec.get("lags"),
             validation_horizon=model_spec.get(
                 "validation_horizon",
                 validation_horizon,

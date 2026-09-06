@@ -303,7 +303,7 @@ class PecnetTrainingWorkflow:
                     "updated_training_enabled": workflow_state[
                         "updated_training_enabled"
                     ],
-                    "test_horizon": ticker_test_df["ds"].nunique(),
+                    "test_row_count": ticker_test_df["ds"].nunique(),
                     "mlflow_params": model_spec.get("_mlflow", {}),
                 }
             )
@@ -338,7 +338,7 @@ class PecnetTrainingWorkflow:
                 preprocess_params=ticker_job["preprocess_params"],
                 hyperparams=ticker_job["hyperparams"],
                 selection_params=ticker_job["selection_params"],
-                test_horizon=ticker_job["test_horizon"],
+                test_row_count=ticker_job["test_row_count"],
                 torch_thread_config=runtime["torch_thread_config"],
             )
             if ticker_job.get("updated_training_enabled"):
@@ -377,7 +377,7 @@ class PecnetTrainingWorkflow:
                 ticker=ticker_job["ticker"],
                 feature_columns=ticker_job["feature_columns"],
                 preprocess_params=ticker_job["preprocess_params"],
-                test_horizon=ticker_job["test_horizon"],
+                test_row_count=ticker_job["test_row_count"],
                 data_preprocessor_cls=runtime["data_preprocessor_cls"],
                 publish_preprocessed_to_store=publish_preprocessed_to_store,
             )

@@ -24,6 +24,7 @@ class StatsForecastModelFactory:
         seasonal_length: int,
         horizon: int,
         conformal_n_windows: int,
+        autoregressive_lags: list[int] | None,
         models_config: list[dict[str, Any]],
     ) -> list[Any]:
         built_models = []
@@ -32,15 +33,19 @@ class StatsForecastModelFactory:
             alias = model_config.get("alias", class_name)
             kwargs = model_config.get("kwargs") or {}
             model_class = StatsForecastModelFactory._model_class(class_name)
+            model_kwargs = {
+                **self._defaults_for(
+                    class_name,
+                    seasonal_length=seasonal_length,
+                    horizon=horizon,
+                    conformal_n_windows=conformal_n_windows,
+                    autoregressive_lags=autoregressive_lags,
+                ),
+                **kwargs,
+            }
             built_models.append(
                 model_class(
-                    **self._defaults_for(
-                        class_name,
-                        seasonal_length=seasonal_length,
-                        horizon=horizon,
-                        conformal_n_windows=conformal_n_windows,
-                    ),
-                    **kwargs,
+                    **model_kwargs,
                     alias=alias,
                 )
             )
@@ -64,6 +69,7 @@ class StatsForecastModelFactory:
         seasonal_length: int,
         horizon: int,
         conformal_n_windows: int,
+        autoregressive_lags: list[int] | None,
     ) -> dict[str, Any]:
         if class_name in {
             "AutoARIMA",
@@ -82,7 +88,7 @@ class StatsForecastModelFactory:
             }
         if class_name == "AutoRegressive":
             return {
-                "lags": sorted({1, seasonal_length}),
+                "lags": autoregressive_lags or sorted({1, seasonal_length}),
                 "prediction_intervals": self._prediction_intervals(
                     horizon=horizon,
                     conformal_n_windows=conformal_n_windows,
@@ -115,10 +121,12 @@ class StatsForecastModelFactory:
         horizon: int,
         conformal_n_windows: int,
         models_config: list[dict[str, Any]],
+        autoregressive_lags: list[int] | None = None,
     ) -> list[Any]:
         return StatsForecastModelFactory().build_models(
             seasonal_length=seasonal_length,
             horizon=horizon,
             conformal_n_windows=conformal_n_windows,
+            autoregressive_lags=autoregressive_lags,
             models_config=models_config,
         )

@@ -81,7 +81,7 @@ class MLForecastTrainer:
             test_df=test_df,
             feature_columns=dynamic_feature_columns,
         )
-        auto_mlf = build_auto_mlforecast(freq=config.freq)
+        auto_mlf = build_auto_mlforecast(freq=config.freq, lags=config.lags)
         model_names = (
             model_spec.get("models")
             if model_spec and model_spec.get("models")
@@ -90,11 +90,12 @@ class MLForecastTrainer:
 
         LOGGER.info(
             "Starting AutoMLForecast training | rows=%s test_rows=%s models=%s "
-            "freq=%s n_windows=%s validation_horizon=%s n_trials=%s",
+            "freq=%s lags=%s n_windows=%s cv_horizon=%s n_trials=%s",
             len(train_df),
             len(test_df),
             model_names,
             config.freq,
+            config.lags,
             config.n_windows,
             config.validation_horizon,
             config.n_trials,
@@ -236,8 +237,9 @@ class MLForecastTrainer:
     ) -> None:
         params = {
             "freq": config.freq,
-            "validation_horizon": config.validation_horizon,
-            "test_horizon": config.test_horizon,
+            "lags": ",".join(str(lag) for lag in config.lags or []),
+            "cv_horizon": config.validation_horizon,
+            "test_row_count": config.test_horizon,
             "n_windows": config.n_windows,
             "n_trials": config.n_trials,
             "verbose": config.verbose,

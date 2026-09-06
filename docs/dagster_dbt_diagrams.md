@@ -4,7 +4,7 @@
 
 ```mermaid
 flowchart LR
-    YQ["YahooQuery API"]
+    YQ["YahooQuery API\nAAPL, BMW.DE, ^GSPC, ^GDAXI"]
     BDaily["bronze/stock_prices\ninterval=1d"]
     BWeekly["bronze/stock_prices_weekly\ninterval=1wk"]
     SDaily["silver/stock_prices\nPandera validated"]
@@ -218,7 +218,7 @@ flowchart LR
     MinIO["MinIO buckets\nDelta Lake + MLflow model artifacts"]
     DuckDB["DuckDB file\ndataops_mlops.duckdb"]
     Timescale["TimescaleDB\nfeature_store + marts"]
-    LocalArtifacts["Git-tracked lightweight artifacts\nartifacts/stock_close_training"]
+    LocalArtifacts["Lightweight artifacts\noutputs/artifacts/stock_close_training"]
 
     Dagster -->|"bronze/silver Delta writes"| MinIO
     dbt -->|"query/mart views"| DuckDB
@@ -230,13 +230,15 @@ flowchart LR
 ## Operational Notes
 
 - Dagster writes daily and weekly bronze/silver Delta tables to MinIO through
-  `MyDeltaLakeIOManager`.
+  `MyDeltaLakeIOManager`. The fetched YahooQuery universe contains AAPL,
+  BMW.DE, `^GSPC`, and `^GDAXI`; the index symbols are retained for downstream
+  context joins and are not treated as stock-close prediction targets.
 - dbt reads both daily and weekly silver Delta tables:
   `s3://delta-lake-bucket/silver/stock_prices` and
   `s3://delta-lake-bucket/silver/stock_prices_weekly`.
 - Weekly silver is exposed through `read_silver_stock_prices_weekly` and
   `stock_price_weekly`, both materialized as DuckDB views.
 - dbt writes query/mart views into DuckDB using `DBT_DUCKDB_PATH`.
-- Lightweight Kedro artifacts under `artifacts/stock_close_training` are
-  intentionally Git-trackable. Heavy runtime data remains in MinIO, TimescaleDB,
-  or DuckDB instead of the project artifact folder.
+- Lightweight Kedro artifacts under `outputs/artifacts/stock_close_training`
+  store compact params, metrics, and plot PNGs. Heavy runtime data remains in
+  MinIO, TimescaleDB, or DuckDB instead of the project source tree.

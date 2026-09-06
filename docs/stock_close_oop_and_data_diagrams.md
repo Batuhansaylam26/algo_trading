@@ -370,6 +370,7 @@ erDiagram
         float time_encoding_features
         float daily_lookback_features
         float weekly_lookback_features
+        float market_index_prev_close
     }
 
     PECNET_PREPROCESSED_TRAINING_DATA {
@@ -447,18 +448,33 @@ erDiagram
   `target_close`, and technical indicators only; it does not carry calendar,
   `prev_*`, Fourier time encodings, or daily/weekly lag columns.
 - `stock_model_features` is the Feast/Timescale model feature table. It carries
-  model-tier features such as `prev_*`, `calendar_gap_days`, Fourier encodings,
-  and daily/weekly lookback columns for MLForecast and StatsForecast tiers.
+  model-tier features such as previous open/high/low/volume, `calendar_gap_days`,
+  Fourier encodings, daily/weekly lookback columns, and Tier8 market-index
+  context for model family training. Previous close is intentionally excluded
+  from engineered feature columns because model-family lag configuration handles
+  close history.
 - PECNet tier5 uses the configured tier5 feature columns from
-  `parameters_machine_learning.yml`, including daily and weekly lookback
+  `parameters_data_preprocessing.yml`, including daily and weekly lookback
   columns, then applies the PECNet framework's `DataPreprocessor` sampling,
   statistics, and wavelet steps to each selected input series.
-- PECNet tier6 is PECNet-only. It uses `y` as the target close series plus
+- Tier6 trains MLForecast, StatsForecast, and PECNet on `y` plus
   `weekly_close_lag_1`, `calendar_gap_days`, and Fourier time encodings from
   `stock_model_features`. The weekly close value is attached through the weekly
   as-of lookback path, so daily rows in the next week see the completed previous
-  weekly bar, not the unfinished current week. Tier6 overrides PECNet sampling
+  weekly bar, not the unfinished current week. PECNet Tier6 overrides sampling
   to `[1, 4, 8]`.
+- Tier7 trains all model families on calendar/time features with the fixed
+  chronological split: 2019-01-01 through 2024-12-31 for training, and
+  2025-01-01 through the final available dataset date for testing. PECNet Tier7
+  uses the same paper-style multi-timeframe preprocessing flags as Tier8.
+  MLForecast and StatsForecast AutoRegressive use the Tier7/Tier8 lag grid
+  `[1, 2, 3, 4, 5, 10, 15, 20]`, matching the daily plus five-business-day
+  memory represented by PECNet sampling periods `[1, 5]` with sequence size 4.
+- Tier8 trains all model families on Tier7 calendar/time features plus
+  `market_index_prev_close`; AAPL receives previous-close context from `^GSPC`,
+  and BMW.DE receives previous-close context from `^GDAXI`. The market indices
+  are fetched and joined as exogenous context but are filtered out before model
+  training targets are built.
 - PECNet prediction evaluation drops the framework's final tomorrow placeholder
   before joining predictions back to the test dates. There is no post-hoc
   train calibration layer: the wrapper follows the PECNet framework examples by
@@ -484,7 +500,7 @@ erDiagram
   evaluation rows per `unique_id`; MLflow metric keys include ticker scope, for example
   `root.tier1.mlforecast.AAPL.RandomForest.test.rmse`.
 - Lightweight local artifacts are also written under
-  `artifacts/stock_close_training` for params, metric CSVs, and compact plot PNGs
+  `outputs/artifacts/stock_close_training` for params, metric CSVs, and compact plot PNGs
   only. This folder is intentionally allowed through `.gitignore` so lightweight
   artifacts can be pushed to GitHub. Models, train/test frames, predictions,
   Delta tables, and MinIO data stay out of this folder to keep project disk

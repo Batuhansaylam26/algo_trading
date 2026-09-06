@@ -32,7 +32,7 @@ class PecnetPerformanceMeasurement:
         ticker: str,
         feature_columns: list[str],
         preprocess_params: dict[str, Any],
-        test_horizon: int,
+        test_row_count: int,
         data_preprocessor_cls,
         publish_preprocessed_to_store: bool = True,
     ) -> tuple[dict[str, Any], int, pd.DataFrame]:
@@ -53,7 +53,7 @@ class PecnetPerformanceMeasurement:
             tier_name=self.tier_name,
             feature_columns=feature_columns,
             preprocess_params=preprocess_params,
-            test_horizon=test_horizon,
+            test_row_count=test_row_count,
             publish_to_store=publish_preprocessed_to_store,
         )
         self.log_preprocessed_store_metadata(
@@ -83,7 +83,7 @@ class PecnetPerformanceMeasurement:
         preprocess_params: dict[str, Any],
         hyperparams: dict[str, Any],
         selection_params: dict[str, Any],
-        test_horizon: int,
+        test_row_count: int,
         torch_thread_config: dict[str, Any],
     ) -> None:
         PecnetPerformanceMeasurement.log_ticker_run_metadata(
@@ -93,7 +93,7 @@ class PecnetPerformanceMeasurement:
             preprocess_params=preprocess_params,
             hyperparams=hyperparams,
             selection_params=selection_params,
-            test_horizon=test_horizon,
+            test_row_count=test_row_count,
             torch_thread_config=torch_thread_config,
         )
 
@@ -132,14 +132,14 @@ class PecnetPerformanceMeasurement:
         preprocess_params: dict[str, Any],
         hyperparams: dict[str, Any],
         selection_params: dict[str, Any],
-        test_horizon: int,
+        test_row_count: int,
         torch_thread_config: dict[str, Any],
     ) -> None:
         ticker_safe = _safe_name(str(ticker))
         params = {
             "tier_name": tier_name,
             "ticker": str(ticker),
-            "test_horizon": test_horizon,
+            "test_rows": test_row_count,
             "feature_columns": ",".join(feature_columns),
             "pecnet.selection_strategy": (
                 selection_params.get("strategy_by_tier", {}).get(

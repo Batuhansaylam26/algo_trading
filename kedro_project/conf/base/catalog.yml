@@ -466,6 +466,36 @@ stock_close_tier8_train_test_split:
 stock_close_tier8_train_test_split_metadata:
   type: MemoryDataset
 
+stock_close_tier8_mlforecast_model_spec:
+  type: MemoryDataset
+
+stock_close_tier8_mlforecast_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier8_mlforecast_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier8_mlforecast_predictions:
+  type: MemoryDataset
+
+stock_close_tier8_mlforecast_training_metadata:
+  type: MemoryDataset
+
+stock_close_tier8_statsforecast_model_spec:
+  type: MemoryDataset
+
+stock_close_tier8_statsforecast_regression_metrics:
+  type: MemoryDataset
+
+stock_close_tier8_statsforecast_long_direction_metrics:
+  type: MemoryDataset
+
+stock_close_tier8_statsforecast_predictions:
+  type: MemoryDataset
+
+stock_close_tier8_statsforecast_training_metadata:
+  type: MemoryDataset
+
 stock_close_tier8_pecnet_model_spec:
   type: MemoryDataset
 

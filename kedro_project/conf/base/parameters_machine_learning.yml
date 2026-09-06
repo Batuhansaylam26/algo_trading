@@ -12,20 +12,10 @@ stock_close_machine_learning:
       - tier5
       - tier6
       - tier7
+      - tier8
     pecnet_only_tiers:
       - tier3
       - tier4
-      - tier8
-
-  walk_forward:
-    training_prediction_count: 756    # target training prediction count per block
-    testing_prediction_count: 252     # target out-of-sample testing prediction count per block
-    num_gpus: 2                       # number of GPUs to distribute work across
-    max_workers: 16                   # max parallel process workers
-    bootstrap_reps: 10000             # Stationary bootstrap repetitions for report_suite
-    output_dir: "artifacts/walk_forward_reports"
-
-
 
   mlflow:
     tracking_uri: auto
@@ -43,8 +33,10 @@ stock_close_machine_learning:
 
   mlforecast:
     freq: B
-    validation_horizon: 120
-    test_horizon: 120
+    lags: [1, 2, 3, 4]
+    lags_by_tier:
+      tier7: [1, 2, 3, 4, 5, 10, 15, 20]
+      tier8: [1, 2, 3, 4, 5, 10, 15, 20]
     n_windows: 5
     n_trials: 10
     verbose: true
@@ -60,6 +52,10 @@ stock_close_machine_learning:
     enabled: true
     freq: B
     seasonal_length: 5
+    autoregressive_lags: [1, 2, 3, 4]
+    autoregressive_lags_by_tier:
+      tier7: [1, 2, 3, 4, 5, 10, 15, 20]
+      tier8: [1, 2, 3, 4, 5, 10, 15, 20]
     conformal_n_windows: 5
     level: [80, 95]
     verbose: true
@@ -91,135 +87,6 @@ stock_close_machine_learning:
       max_selected_features_by_tier:
         tier4: 5
         tier5: 5
-    feature_columns_by_tier:
-      tier1:
-        - prev_open
-        - prev_high
-        - prev_low
-        - prev_volume
-      tier2:
-        - prev_open
-        - prev_high
-        - prev_low
-        - prev_volume
-        - calendar_gap_days
-        - month_sin_1
-        - month_cos_1
-        - month_sin_2
-        - month_cos_2
-        - day_sin_1
-        - day_cos_1
-        - day_sin_2
-        - day_cos_2
-        - day_of_year_sin_1
-        - day_of_year_cos_1
-        - day_of_year_sin_2
-        - day_of_year_cos_2
-      tier3:
-        - prev_open
-        - prev_high
-        - prev_low
-        - prev_volume
-        - calendar_gap_days
-        - month_sin_1
-        - month_cos_1
-        - month_sin_2
-        - month_cos_2
-        - day_sin_1
-        - day_cos_1
-        - day_sin_2
-        - day_cos_2
-        - day_of_year_sin_1
-        - day_of_year_cos_1
-        - day_of_year_sin_2
-        - day_of_year_cos_2
-      tier4:
-        - prev_open
-        - prev_high
-        - prev_low
-        - prev_volume
-        - calendar_gap_days
-        - month_sin_1
-        - month_cos_1
-        - month_sin_2
-        - month_cos_2
-        - day_sin_1
-        - day_cos_1
-        - day_sin_2
-        - day_cos_2
-        - day_of_year_sin_1
-        - day_of_year_cos_1
-        - day_of_year_sin_2
-        - day_of_year_cos_2
-      tier5:
-        - prev_open
-        - prev_high
-        - prev_low
-        - prev_volume
-        - calendar_gap_days
-        - month_sin_1
-        - month_cos_1
-        - month_sin_2
-        - month_cos_2
-        - day_sin_1
-        - day_cos_1
-        - day_sin_2
-        - day_cos_2
-        - day_of_year_sin_1
-        - day_of_year_cos_1
-        - day_of_year_sin_2
-        - day_of_year_cos_2
-        - daily_open_lag_1
-        - daily_high_lag_1
-        - daily_low_lag_1
-        - daily_volume_lag_1
-        - daily_open_lag_2
-        - daily_high_lag_2
-        - daily_low_lag_2
-        - daily_volume_lag_2
-        - daily_open_lag_3
-        - daily_high_lag_3
-        - daily_low_lag_3
-        - daily_volume_lag_3
-        - daily_open_lag_4
-        - daily_high_lag_4
-        - daily_low_lag_4
-        - daily_volume_lag_4
-        - weekly_open_lag_1
-        - weekly_high_lag_1
-        - weekly_low_lag_1
-        - weekly_close_lag_1
-        - weekly_volume_lag_1
-        - weekly_open_lag_2
-        - weekly_high_lag_2
-        - weekly_low_lag_2
-        - weekly_close_lag_2
-        - weekly_volume_lag_2
-        - weekly_open_lag_3
-        - weekly_high_lag_3
-        - weekly_low_lag_3
-        - weekly_close_lag_3
-        - weekly_volume_lag_3
-        - weekly_open_lag_4
-        - weekly_high_lag_4
-        - weekly_low_lag_4
-        - weekly_close_lag_4
-        - weekly_volume_lag_4
-      tier6:
-        - weekly_close_lag_1
-        - calendar_gap_days
-        - month_sin_1
-        - month_cos_1
-        - month_sin_2
-        - month_cos_2
-        - day_sin_1
-        - day_cos_1
-        - day_sin_2
-        - day_cos_2
-        - day_of_year_sin_1
-        - day_of_year_cos_1
-        - day_of_year_sin_2
-        - day_of_year_cos_2
     preprocess_params:
       sampling_periods: [1, 2, 4]
       sampling_statistics: ["mean", "std"]
@@ -271,6 +138,8 @@ stock_close_machine_learning:
         normalization_type:
         target_normalization_type: window_mean
         conjoincy: false
+        paper_multi_timeframe: true
+        drop_first_wavelet_coefficient: false
       tier8:
         sampling_periods: [1, 5]
         sampling_statistics: ["mean"]

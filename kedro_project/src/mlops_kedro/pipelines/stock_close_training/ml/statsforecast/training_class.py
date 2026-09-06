@@ -45,7 +45,7 @@ class StatsForecastTrainer:
         )
         test_df = self._align_test_df_to_horizon(test_df, config.test_horizon)
         dynamic_feature_columns = self._dynamic_feature_columns(train_df)
-        power_transformer =  fit ed()
+        power_transformer = ForecastYeoJohnsonPowerTransformer()
         model_train_df, model_test_df = power_transformer.fit_transform_frames(
             train_df=train_df,
             test_df=test_df,
@@ -55,17 +55,20 @@ class StatsForecastTrainer:
             seasonal_length=config.seasonal_length,
             horizon=config.validation_horizon,
             conformal_n_windows=config.conformal_n_windows,
+            autoregressive_lags=config.autoregressive_lags,
             models_config=config.models or [],
         )
 
         LOGGER.info(
             "Starting StatsForecast training | rows=%s test_rows=%s models=%s "
-            "freq=%s seasonal_length=%s conformal_n_windows=%s",
+            "freq=%s seasonal_length=%s autoregressive_lags=%s "
+            "conformal_n_windows=%s",
             len(train_df),
             len(test_df),
             [getattr(model, "alias", model.__class__.__name__) for model in models],
             config.freq,
             config.seasonal_length,
+            config.autoregressive_lags,
             config.conformal_n_windows,
         )
 
@@ -166,8 +169,11 @@ class StatsForecastTrainer:
             "tier_name": config.tier_name,
             "freq": config.freq,
             "seasonal_length": config.seasonal_length,
-            "validation_horizon": config.validation_horizon,
-            "test_horizon": config.test_horizon,
+            "autoregressive_lags": ",".join(
+                str(lag) for lag in config.autoregressive_lags or []
+            ),
+            "cv_horizon": config.validation_horizon,
+            "test_row_count": config.test_horizon,
             "conformal_n_windows": config.conformal_n_windows,
             "verbose": config.verbose,
             "models": ",".join(

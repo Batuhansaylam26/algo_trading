@@ -14,7 +14,6 @@ class PecnetSpecBuilder:
     def build_pecnet_spec(
         *,
         enabled: bool = True,
-        test_horizon: int = 5,
         feature_columns: list[str] | None = None,
         preprocess_params: dict[str, Any] | None = None,
         hyperparams: dict[str, Any] | None = None,
@@ -24,7 +23,6 @@ class PecnetSpecBuilder:
         return {
             "enabled": enabled,
             "tier_name": tier_name,
-            "test_horizon": test_horizon,
             "feature_columns": feature_columns or [],
             "preprocess_params": preprocess_params or {},
             "hyperparams": hyperparams or {},
@@ -56,10 +54,10 @@ class PecnetSpecBuilder:
     def make_pecnet_train_test_split(
         dataset: pl.DataFrame,
         *,
-        test_horizon: int,
+        test_row_count: int,
     ) -> dict[str, pd.DataFrame]:
         model_df = PecnetSpecBuilder.to_pecnet_frame(dataset)
-        train_df, test_df = split_train_test_by_horizon(model_df, test_horizon)
+        train_df, test_df = split_train_test_by_horizon(model_df, test_row_count)
         return {
             "full": model_df,
             "train": train_df,

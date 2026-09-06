@@ -12,7 +12,11 @@ LOGGER = logging.getLogger(__name__)
 
 
 class MLForecastSpecBuilder:
-    def build_auto_mlforecast(self, freq: str = "B") -> Any:
+    def build_auto_mlforecast(
+        self,
+        freq: str = "B",
+        lags: list[int] | None = None,
+    ) -> Any:
         try:
             from mlforecast.auto import AutoMLForecast
         except OSError as exc:
@@ -24,12 +28,21 @@ class MLForecastSpecBuilder:
                 "`apt-get update && apt-get install -y libgomp1`."
             ) from exc
 
-        from .models import build_auto_models, fit_config, init_config
+        from .models import (
+            MLForecastModelFactory,
+            build_auto_models,
+            fit_config,
+            init_config,
+        )
+
+        init_config_factory = (
+            MLForecastModelFactory.fixed_init_config(lags) if lags else init_config
+        )
 
         return AutoMLForecast(
             models=build_auto_models(),
             freq=freq,
-            init_config=init_config,
+            init_config=init_config_factory,
             fit_config=fit_config,
             num_threads=cpu_count_from_env("MLFORECAST_NUM_THREADS"),
             reuse_cv_splits=True,
@@ -39,8 +52,7 @@ class MLForecastSpecBuilder:
         self,
         *,
         freq: str = "B",
-        validation_horizon: int = 1,
-        test_horizon: int = 5,
+        lags: list[int] | None = None,
         n_windows: int = 3,
         n_trials: int = 20,
         level: list[int] | None = None,
@@ -51,8 +63,7 @@ class MLForecastSpecBuilder:
         return {
             "tier_name": tier_name,
             "freq": freq,
-            "validation_horizon": validation_horizon,
-            "test_horizon": test_horizon,
+            "lags": lags,
             "n_windows": n_windows,
             "n_trials": n_trials,
             "level": level or [80, 95],

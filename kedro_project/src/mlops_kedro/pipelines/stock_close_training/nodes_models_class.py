@@ -49,11 +49,12 @@ class StockCloseModelNodes:
         )
         model_spec = self.mlforecast.build_spec(
             freq=mlforecast_params.get("freq", "B"),
-            validation_horizon=_as_int(
-                mlforecast_params.get("validation_horizon"),
-                1,
+            lags=self._tier_overridden_int_list(
+                mlforecast_params,
+                base_key="lags",
+                override_key="lags_by_tier",
+                tier_name=tier_name,
             ),
-            test_horizon=_as_int(mlforecast_params.get("test_horizon"), 5),
             n_windows=_as_int(mlforecast_params.get("n_windows"), 3),
             n_trials=_as_int(mlforecast_params.get("n_trials"), 20),
             verbose=_as_bool(mlforecast_params.get("verbose"), True),
@@ -121,11 +122,12 @@ class StockCloseModelNodes:
         model_spec = self.statsforecast.build_spec(
             freq=statsforecast_params.get("freq", mlforecast_params.get("freq", "B")),
             seasonal_length=_as_int(statsforecast_params.get("seasonal_length"), 5),
-            validation_horizon=_as_int(
-                mlforecast_params.get("validation_horizon"),
-                1,
+            autoregressive_lags=self._tier_overridden_int_list(
+                statsforecast_params,
+                base_key="autoregressive_lags",
+                override_key="autoregressive_lags_by_tier",
+                tier_name=tier_name,
             ),
-            test_horizon=_as_int(mlforecast_params.get("test_horizon"), 5),
             conformal_n_windows=_as_int(
                 statsforecast_params.get("conformal_n_windows"),
                 3,
@@ -200,14 +202,9 @@ class StockCloseModelNodes:
             runtime_params=runtime_params,
             mlforecast_params=mlforecast_params,
         )
-        feature_columns_by_tier = pecnet_params.get("feature_columns_by_tier") or {}
-        if tier_name in feature_columns_by_tier:
-            feature_columns = feature_columns_by_tier[tier_name]
-        else:
-            feature_columns = _feature_columns_for_tier(columns_params, tier_name)
+        feature_columns = _feature_columns_for_tier(columns_params, tier_name)
         model_spec = self.pecnet.build_spec(
             enabled=_as_bool(pecnet_params.get("enabled"), True),
-            test_horizon=_as_int(mlforecast_params.get("test_horizon"), 5),
             feature_columns=feature_columns,
             preprocess_params=_merge_tier_overrides(
                 pecnet_params.get("preprocess_params"),
@@ -315,3 +312,23 @@ class StockCloseModelNodes:
         summary = {"sections": list(metadata_items)}
         _log_step("summarize_machine_learning", sections=len(metadata_items))
         return summary
+
+    @staticmethod
+    def _tier_overridden_int_list(
+        params: dict[str, Any],
+        *,
+        base_key: str,
+        override_key: str,
+        tier_name: str,
+    ) -> list[int] | None:
+        overrides = params.get(override_key) or {}
+        value = overrides.get(tier_name, params.get(base_key))
+        if value is None:
+            return None
+        return StockCloseModelNodes._int_list(value)
+
+    @staticmethod
+    def _int_list(value: Any) -> list[int]:
+        if isinstance(value, str):
+            return [int(part.strip()) for part in value.split(",") if part.strip()]
+        return [int(item) for item in value]

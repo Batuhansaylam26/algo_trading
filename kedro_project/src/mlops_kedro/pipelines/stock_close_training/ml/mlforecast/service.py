@@ -21,8 +21,7 @@ class MLForecastService:
         self,
         *,
         freq: str | None = None,
-        validation_horizon: int = 1,
-        test_horizon: int = 5,
+        lags: list[int] | None = None,
         n_windows: int = 3,
         n_trials: int = 20,
         level: list[int] | None = None,
@@ -32,8 +31,7 @@ class MLForecastService:
     ) -> dict[str, Any]:
         return MLForecastSpecBuilder().build_spec(
             freq=freq or self.default_freq,
-            validation_horizon=validation_horizon,
-            test_horizon=test_horizon,
+            lags=lags,
             n_windows=n_windows,
             n_trials=n_trials,
             level=level,

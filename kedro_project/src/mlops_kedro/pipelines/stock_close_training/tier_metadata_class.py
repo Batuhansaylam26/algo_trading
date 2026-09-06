@@ -34,8 +34,8 @@ class StockCloseTierMetadata:
             "hypothesis": (
                 "Features correlated with prediction errors can improve PECNet compensation."
             ),
-            "benchmark_role": "model_family_benchmark_and_pecnet_ablation",
-            "comparison_scope": "mlforecast_statsforecast_pecnet",
+            "benchmark_role": "pecnet_configuration_benchmark",
+            "comparison_scope": "pecnet_only",
         },
         "tier4": {
             "name": "Thesis-inspired PECNet",
@@ -47,46 +47,49 @@ class StockCloseTierMetadata:
             "comparison_scope": "pecnet_only",
         },
         "tier5": {
-            "name": "Multi-timeframe PECNet",
+            "name": "Multi-timeframe feature set",
             "feature_representation": "Daily and weekly historical context.",
             "hypothesis": (
                 "Combining short-term daily behavior with weekly context improves robustness."
             ),
-            "benchmark_role": "pecnet_configuration_benchmark",
-            "comparison_scope": "pecnet_only",
+            "benchmark_role": "model_family_benchmark",
+            "comparison_scope": "mlforecast_statsforecast_pecnet",
         },
         "tier6": {
-            "name": "Weekly-context PECNet with calendar features",
+            "name": "Weekly-context feature set with calendar features",
             "feature_representation": (
                 "Daily target context, weekly close context, calendar gap days, and Fourier encodings."
             ),
             "hypothesis": (
                 "Weekly regime information and calendar-aware context help explain changing dynamics."
             ),
-            "benchmark_role": "pecnet_configuration_benchmark",
-            "comparison_scope": "pecnet_only",
+            "benchmark_role": "model_family_benchmark",
+            "comparison_scope": "mlforecast_statsforecast_pecnet",
         },
         "tier7": {
-            "name": "Fixed chronological PECNet",
+            "name": "Paper-style fixed chronological feature set",
             "feature_representation": (
-                "PECNet evaluated with a fixed 2019-2024 train and 2025-latest test design."
+                "Calendar/time features with fixed 2019-2024 train and "
+                "2025-latest test design; ML/Stats AutoRegressive lags use "
+                "1,2,3,4,5,10,15,20 and PECNet uses sampling periods 1 and 5."
             ),
             "hypothesis": (
                 "A fixed chronological split tests out-of-sample behavior over a recent regime."
             ),
-            "benchmark_role": "pecnet_configuration_benchmark",
-            "comparison_scope": "pecnet_only",
+            "benchmark_role": "model_family_benchmark",
+            "comparison_scope": "mlforecast_statsforecast_pecnet",
         },
         "tier8": {
-            "name": "Paper-inspired PEC-WNN PECNet",
+            "name": "Paper-inspired PEC-WNN feature set with market index context",
             "feature_representation": (
-                "PEC-WNN-style preprocessing and wavelet/error-compensated training configuration."
+                "Tier 7 calendar/time context plus market-index previous close; "
+                "AAPL uses ^GSPC and BMW.DE uses ^GDAXI as exogenous context."
             ),
             "hypothesis": (
-                "Paper-inspired PEC-WNN settings improve long chronological forecasting stability."
+                "External market-index context can improve long chronological forecasting stability."
             ),
-            "benchmark_role": "pecnet_configuration_benchmark",
-            "comparison_scope": "pecnet_only",
+            "benchmark_role": "model_family_benchmark",
+            "comparison_scope": "mlforecast_statsforecast_pecnet",
         },
         "all_tiers": {
             "name": "Root performance comparison",

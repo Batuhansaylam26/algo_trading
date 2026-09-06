@@ -11,7 +11,7 @@ import pandas as pd
 import polars as pl
 
 from ...common import log_mlflow_datasets
-from ..runtime import _safe_name, _ticker_test_ratio
+from ..runtime import _safe_name, _ticker_test_row_ratio
 
 
 LOGGER = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ class PecnetDataPreprocessor:
         tier_name: str,
         feature_columns: list[str],
         preprocess_params: dict[str, Any],
-        test_horizon: int,
+        test_row_count: int,
         publish_to_store: bool = True,
     ) -> tuple[dict[str, Any], dict[str, object], pd.DataFrame]:
         ticker_data = PecnetDataPreprocessor._preprocess_ticker(
@@ -41,8 +41,9 @@ class PecnetDataPreprocessor:
             ticker=str(ticker),
             feature_columns=feature_columns,
             preprocess_params=preprocess_params,
-            test_horizon=test_horizon,
+            test_row_count=test_row_count,
             data_preprocessor_cls=self.data_preprocessor_cls,
+            tier_name=tier_name,
         )
         preprocessed_df = PecnetDataPreprocessor._pecnet_preprocessed_training_frame(
             ticker_data=ticker_data,
@@ -79,8 +80,9 @@ class PecnetDataPreprocessor:
         ticker: str,
         feature_columns: list[str],
         preprocess_params: dict[str, Any],
-        test_horizon: int,
+        test_row_count: int,
         data_preprocessor_cls,
+        tier_name: str,
     ) -> dict[str, Any]:
         dp = data_preprocessor_cls()
         dp.reset()
@@ -98,8 +100,7 @@ class PecnetDataPreprocessor:
         )
         test_ratio = PecnetDataPreprocessor._preprocessor_test_ratio(
             row_count=len(ticker_df),
-            test_row_count=len(ticker_test_df),
-            test_horizon=test_horizon,
+            test_row_count=test_row_count,
             preprocess_params=preprocess_params,
         )
         params = {
@@ -286,7 +287,6 @@ class PecnetDataPreprocessor:
         *,
         row_count: int,
         test_row_count: int,
-        test_horizon: int,
         preprocess_params: dict[str, Any],
     ) -> float:
         explicit_ratio = preprocess_params.get("test_ratio")
@@ -294,7 +294,7 @@ class PecnetDataPreprocessor:
             return float(explicit_ratio)
 
         if test_row_count <= 0:
-            return _ticker_test_ratio(row_count, test_horizon)
+            return _ticker_test_row_ratio(row_count, test_row_count)
 
         sampling_periods = preprocess_params.get("sampling_periods") or [1, 4]
         sequence_size = int(preprocess_params.get("sequence_size", 4))

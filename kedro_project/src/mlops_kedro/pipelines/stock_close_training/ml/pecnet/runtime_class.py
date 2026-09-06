@@ -512,10 +512,10 @@ class PecnetRuntime:
         return bool(mps_backend and mps_backend.is_available())
 
     @staticmethod
-    def _ticker_test_ratio(row_count: int, test_horizon: int) -> float:
-        if row_count <= test_horizon:
+    def _ticker_test_row_ratio(row_count: int, test_row_count: int) -> float:
+        if row_count <= test_row_count:
             raise ValueError(
-                f"PECNet needs more rows than test_horizon. rows={row_count}, "
-                f"test_horizon={test_horizon}"
+                f"PECNet needs more rows than test_row_count. rows={row_count}, "
+                f"test_row_count={test_row_count}"
             )
-        return min(max(test_horizon / row_count, 0.01), 0.5)
+        return min(max(test_row_count / row_count, 0.01), 0.5)

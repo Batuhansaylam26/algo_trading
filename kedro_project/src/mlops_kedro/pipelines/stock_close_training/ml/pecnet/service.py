@@ -16,7 +16,6 @@ class PecnetService:
         self,
         *,
         enabled: bool,
-        test_horizon: int,
         feature_columns: list[str],
         preprocess_params: dict[str, Any],
         hyperparams: dict[str, Any],
@@ -25,7 +24,6 @@ class PecnetService:
     ) -> dict[str, Any]:
         return build_pecnet_spec(
             enabled=enabled,
-            test_horizon=test_horizon,
             feature_columns=feature_columns,
             preprocess_params=preprocess_params,
             hyperparams=hyperparams,
@@ -40,9 +38,9 @@ class PecnetService:
         self,
         dataset: pl.DataFrame,
         *,
-        test_horizon: int,
+        test_row_count: int,
     ) -> dict[str, pd.DataFrame]:
-        return make_pecnet_train_test_split(dataset, test_horizon=test_horizon)
+        return make_pecnet_train_test_split(dataset, test_row_count=test_row_count)
 
     def train_from_split(
         self,

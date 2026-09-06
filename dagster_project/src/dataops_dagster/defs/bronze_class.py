@@ -4,7 +4,7 @@ from dagster import AssetExecutionContext, MetadataValue, asset
 from yahooquery import Ticker
 
 
-TICKER_LIST = ["AAPL", "BMW.DE"]
+TICKER_LIST = ["AAPL", "BMW.DE", "^GSPC", "^GDAXI"]
 DEFAULT_PERIOD = "max"
 
 

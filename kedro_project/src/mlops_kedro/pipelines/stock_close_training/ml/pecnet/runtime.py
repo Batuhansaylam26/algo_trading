@@ -12,4 +12,4 @@ _patch_basic_nn_device_selection = pecnet_runtime._patch_basic_nn_device_selecti
 _resolve_torch_device_name = pecnet_runtime._resolve_torch_device_name
 _requested_torch_device = pecnet_runtime._requested_torch_device
 _torch_mps_available = pecnet_runtime._torch_mps_available
-_ticker_test_ratio = pecnet_runtime._ticker_test_ratio
+_ticker_test_row_ratio = pecnet_runtime._ticker_test_row_ratio
